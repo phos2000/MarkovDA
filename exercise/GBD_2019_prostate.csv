@@ -1,0 +1,16 @@
+measure,location,sex,age,cause,metric,year,val,upper,lower
+Deaths,United States of America,Male,20-24 years,Prostate cancer,Percent,2019,0.0001767319618007689,0.00026854065656903346,0.00015364536009909537
+Deaths,United States of America,Male,25-29 years,Prostate cancer,Percent,2019,0.0002211528339670546,0.000320464505467134,0.0001839015837672078
+Deaths,United States of America,Male,30-34 years,Prostate cancer,Percent,2019,0.00026381735868184796,0.0003662509082625915,0.00021233554479629637
+Deaths,United States of America,Male,35-39 years,Prostate cancer,Percent,2019,0.00032943067159342776,0.00045297390595379843,0.00026871788567485287
+Deaths,United States of America,Male,40-44 years,Prostate cancer,Percent,2019,0.0007689368214968788,0.0010257734694813791,0.0006210700502916079
+Deaths,United States of America,Male,45-49 years,Prostate cancer,Percent,2019,0.0026237768490062208,0.003449988147486197,0.0020861510053524737
+Deaths,United States of America,Male,50-54 years,Prostate cancer,Percent,2019,0.006493378388334804,0.00827082227771563,0.005155932672847318
+Deaths,United States of America,Male,55-59 years,Prostate cancer,Percent,2019,0.01182407269971381,0.015852505815531215,0.009764347345554623
+Deaths,United States of America,Male,60-64 years,Prostate cancer,Percent,2019,0.0212458955984917,0.029623652587828272,0.01852614495771185
+Deaths,United States of America,Male,65-69 years,Prostate cancer,Percent,2019,0.02869605984072759,0.043501326927285686,0.025410604309408585
+Deaths,United States of America,Male,70-74 years,Prostate cancer,Percent,2019,0.034970097014881366,0.05396465530678543,0.03079178171229726
+Deaths,United States of America,Male,75-79 years,Prostate cancer,Percent,2019,0.044851019124391656,0.07057464203377584,0.039580265620488046
+Deaths,United States of America,Male,80-84,Prostate cancer,Percent,2019,0.04726528049823603,0.07364832402403301,0.03990647322614224
+Deaths,United States of America,Male,85-89,Prostate cancer,Percent,2019,0.04744805992411748,0.06935965748599172,0.038548895575003586
+Deaths,United States of America,Male,90-94,Prostate cancer,Percent,2019,0.044645837079259516,0.06160360406388238,0.033812480047060285

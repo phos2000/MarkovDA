@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Astrid Yu, Ashley Leech">
+<meta name="dcterms.date" content="2023-03-22">
+
+<title>Lab in R codes - Add the Time-Varying Variable into Markov Model</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Add the Time-Varying Variable into Markov Model</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Lab in R codes</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./MarkovDA.html" class="sidebar-item-text sidebar-link">Basic Markov Model</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AddingMortality.html" class="sidebar-item-text sidebar-link active">Advanced Markov Model</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#dive-into-life-table" id="toc-dive-into-life-table" class="nav-link active" data-scroll-target="#dive-into-life-table">Dive into Life Table</a>
+  <ul class="collapse">
+  <li><a href="#where-to-get-the-us-life-table" id="toc-where-to-get-the-us-life-table" class="nav-link" data-scroll-target="#where-to-get-the-us-life-table">Where to get the US life table</a></li>
+  <li><a href="#where-to-get-the-specific-cause-death" id="toc-where-to-get-the-specific-cause-death" class="nav-link" data-scroll-target="#where-to-get-the-specific-cause-death">Where to get the specific-cause death</a></li>
+  <li><a href="#how-to-calculate-the-cause-deleted-life-table" id="toc-how-to-calculate-the-cause-deleted-life-table" class="nav-link" data-scroll-target="#how-to-calculate-the-cause-deleted-life-table">How to calculate the cause-deleted life table</a></li>
+  </ul></li>
+  <li><a href="#build-a-loop-to-process-markov-model-background-mortality" id="toc-build-a-loop-to-process-markov-model-background-mortality" class="nav-link" data-scroll-target="#build-a-loop-to-process-markov-model-background-mortality">Build a loop to process Markov Model &amp; Background Mortality</a></li>
+  <li><a href="#icer-re-calculation" id="toc-icer-re-calculation" class="nav-link" data-scroll-target="#icer-re-calculation">ICER re-calculation</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Add the Time-Varying Variable into Markov Model</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Astrid Yu, Ashley Leech </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 22, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>Based on the last tutorial of Markov Model in R, we will add background mortality using a cause-deleted life table.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># knit('MarkovDA.qmd', tangle=TRUE)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># source('MarkovDA.R')</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">purl</span>(<span class="st">"MarkovDA.qmd"</span>, <span class="at">output =</span> <span class="fu">tempfile</span>()))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"scipen"</span><span class="ot">=</span><span class="dv">1000</span>, <span class="st">"digits"</span><span class="ot">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="dive-into-life-table" class="level1">
+<h1>Dive into Life Table</h1>
+<section id="where-to-get-the-us-life-table" class="level2">
+<h2 class="anchored" data-anchor-id="where-to-get-the-us-life-table">Where to get the US life table</h2>
+<p><a href="https://www.cdc.gov/nchs/products/life_tables.htm" class="uri">https://www.cdc.gov/nchs/products/life_tables.htm</a> [CDC website]</p>
+<p>We are using United States Life Tables(2020) – remember to distinguish the life tables for the male and the female.</p>
+<p>Male: <a href="https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table02.xlsx" class="uri">https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table02.xlsx</a></p>
+<p>Female: <a href="https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table03.xlsx" class="uri">https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table03.xlsx</a></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>qx</td>
+<td>Probability of dying between ages x and x + 1</td>
+</tr>
+<tr class="even">
+<td>lx</td>
+<td>Number surviving to age x</td>
+</tr>
+<tr class="odd">
+<td>dx</td>
+<td>Number dying between ages x and x + 1</td>
+</tr>
+<tr class="even">
+<td>Lx</td>
+<td>Person-years lived between ages x and x + 1</td>
+</tr>
+<tr class="odd">
+<td>Tx</td>
+<td>Total number of person-years lived above age x</td>
+</tr>
+<tr class="even">
+<td>ex</td>
+<td>Expectation of life at age x</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>input_file <span class="ot">=</span> <span class="fu">normalizePath</span>(<span class="fu">here</span>(<span class="st">"exercise/markov_exercise_phd.xlsx"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>life_table_raw <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(input_file,<span class="at">sheet=</span><span class="st">"Life Table - Male"</span>,<span class="at">col_types =</span><span class="st">"numeric"</span>)[<span class="sc">-</span><span class="dv">1</span>,]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(life_table_raw) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"qx"</span>, <span class="st">"lx"</span>, <span class="st">"dx"</span>, <span class="st">"Lx"</span>, <span class="st">"Tx"</span>, <span class="st">"ex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="where-to-get-the-specific-cause-death" class="level2">
+<h2 class="anchored" data-anchor-id="where-to-get-the-specific-cause-death">Where to get the specific-cause death</h2>
+<p>Here we set all our patients are initially 45-yr men with the prostate cancer.</p>
+<p><a href="https://vizhub.healthdata.org/gbd-results/" class="uri">https://vizhub.healthdata.org/gbd-results/</a>[GBD query tool]</p>
+<p>GBD results provide the % of deaths due to a specific cause by age (every 5 years) and sex groups.</p>
+<p>Using filters like:</p>
+<p><img src="exercise/prostate-cancer-cause-death.png" class="img-fluid"></p>
+<p><img src="exercise/GBD-download-request.png" class="img-fluid"></p>
+</section>
+<section id="how-to-calculate-the-cause-deleted-life-table" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-calculate-the-cause-deleted-life-table">How to calculate the cause-deleted life table</h2>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cause_death_m <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">"exercise/GBD_2019_prostate.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(age,val,upper,lower)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>cause_death_m1 <span class="ot">=</span> cause_death_m <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(age, <span class="st">"&lt;"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">start =</span> <span class="dv">0</span>, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">reptimes =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'&lt;'</span>, age))[<span class="dv">1</span>]<span class="sc">+</span><span class="dv">1</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">' '</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">end =</span> start <span class="sc">+</span> reptimes <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>cause_death_m2 <span class="ot">=</span> cause_death_m <span class="sc">%&gt;%</span> </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(age,<span class="st">"-"</span>) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">str_detect</span>(age, <span class="st">" "</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  rowwise <span class="sc">%&gt;%</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">start =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,<span class="dv">1</span>,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'-'</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">end =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'-'</span>, age))[<span class="dv">1</span>]<span class="sc">+</span><span class="dv">1</span>,<span class="fu">str_length</span>(age))),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">reptimes =</span> end <span class="sc">-</span> start <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>cause_death_m3 <span class="ot">=</span> cause_death_m <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(age,<span class="st">"-"</span>) <span class="sc">&amp;</span> <span class="fu">str_detect</span>(age, <span class="st">" "</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  rowwise <span class="sc">%&gt;%</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">start =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,<span class="dv">1</span>,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'-'</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">end =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'-'</span>, age))[<span class="dv">1</span>]<span class="sc">+</span><span class="dv">1</span>,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">' '</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">reptimes =</span> end <span class="sc">-</span> start <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>cause_death_male <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m1, rep, cause_death_m1<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m2, rep, cause_death_m2<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m3, rep, cause_death_m3<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Age, val, upper, lower)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>maxage <span class="ot">=</span> <span class="fu">min</span>(<span class="fu">max</span>(life_table_raw<span class="sc">$</span>Age), <span class="fu">max</span>(cause_death_male<span class="sc">$</span>Age))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>minage_cause <span class="ot">=</span> <span class="fu">min</span>(cause_death_male<span class="sc">$</span>Age)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>mlt2020 <span class="ot">=</span> life_table_raw[(minage_cause<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(maxage<span class="sc">+</span><span class="dv">1</span>),]</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="do">## dx</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>mlt2020_nonCause <span class="ot">=</span> <span class="fu">rbind</span>(life_table_raw[<span class="dv">1</span><span class="sc">:</span>minage_cause, <span class="fu">c</span>(<span class="st">"Age"</span>,<span class="st">"dx"</span>)],</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage, </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>cause_death_male[, <span class="st">"val"</span>])),</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                         life_table_raw[(maxage<span class="sc">+</span><span class="dv">2</span>)<span class="sc">:</span><span class="fu">nrow</span>(life_table_raw),<span class="fu">c</span>(<span class="st">"Age"</span>,<span class="st">"dx"</span>)])</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>mlt2020_cause <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage,</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                         <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> cause_death_male[, <span class="st">"val"</span>])</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co"># sum(mlt2020_cause$dx) + sum(mlt2020_nonCause$dx)</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co"># back dx to qx</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mlt2020_nonCause)){</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  mlt2020_nonCause[i, <span class="st">"qx"</span>] <span class="ot">=</span> mlt2020_nonCause[i, <span class="st">"dx"</span>] <span class="sc">/</span> <span class="fu">sum</span>(mlt2020_nonCause[i<span class="sc">:</span><span class="fu">nrow</span>(mlt2020_nonCause), <span class="st">"dx"</span>])</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="build-a-loop-to-process-markov-model-background-mortality" class="level1">
+<h1>Build a loop to process Markov Model &amp; Background Mortality</h1>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># here use the cause-deleted life table</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_M_phd <span class="ot">=</span> death_background <span class="ot">=</span> death_cancer <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setting</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>start_age <span class="ot">=</span> <span class="dv">45</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_strategies) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#initialization</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  death_cancer[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  death_background[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> params_sc<span class="sc">$</span>n_cycles<span class="sc">+</span><span class="dv">1</span>, <span class="at">ncol =</span> v_n_states, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, v_names_states))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]][<span class="dv">1</span>,] <span class="ot">=</span> <span class="fu">c</span>(params_sc<span class="sc">$</span>nPop, <span class="fu">rep</span>(<span class="dv">0</span>,<span class="at">times=</span><span class="dv">5</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (cycle <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>params_sc<span class="sc">$</span>n_cycles) {</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    m_M_phd[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,] <span class="ot">=</span> m_M_phd[[v_names_str[i]]][cycle,] <span class="sc">%*%</span> m_P[[v_names_str[i]]] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>())</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">sum</span>(m_M_phd[[v_names_str[i]]][cycle,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">*</span> (mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>()) <span class="sc">+</span> death_background[[v_names_str[i]]][cycle]</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    death_cancer[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">round</span>(params_sc<span class="sc">$</span>nPop <span class="sc">-</span> <span class="fu">sum</span>(m_M_phd[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">-</span> death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>],<span class="dv">2</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">cbind</span>(m_M_phd[[v_names_str[i]]][,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="fu">matrix</span>(death_cancer[[v_names_str[i]]]), <span class="fu">matrix</span>(death_background[[v_names_str[i]]]))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(m_M_phd[[v_names_str[i]]])[<span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>] <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Death_Cancer"</span>, <span class="st">"Death_Background"</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>m_M_phd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+ [1,]    1000      0      0      0         0          0.0              0.0
+ [2,]     916     50     20     10         0          0.0              4.4
+ [3,]     839     79     36     17        16          4.5              9.0
+ [4,]     768     96     47     22        41         12.1             14.0
+ [5,]     703    107     56     26        68         22.0             19.2
+ [6,]     643    113     63     28        95         33.5             24.7
+ [7,]     588    118     68     30       121         46.1             30.5
+ [8,]     537    121     71     31       145         59.4             36.7
+ [9,]     490    122     74     31       166         73.1             43.2
+[10,]     448    123     76     31       185         87.0             50.2
+[11,]     408    124     77     31       201        101.0             57.6
+[12,]     372    124     77     31       215        114.9             65.5
+[13,]     339    123     78     30       227        128.6             73.8
+[14,]     308    122     78     30       237        142.2             82.5
+[15,]     280    121     77     29       245        155.5             91.8
+[16,]     255    119     77     29       250        168.6            101.5
+[17,]     231    118     76     28       254        181.3            111.6
+[18,]     209    115     75     27       257        193.8            122.1
+[19,]     189    113     74     27       258        205.9            133.1
+[20,]     171    111     72     26       258        217.6            144.4
+[21,]     155    108     71     25       257        229.0            156.0
+[22,]     140    105     69     24       254        240.1            167.7
+[23,]     126    102     67     23       251        250.7            179.9
+[24,]     113     99     65     23       247        261.0            192.3
+[25,]     102     96     63     22       242        270.9            205.1
+[26,]      91     92     61     21       236        280.4            218.2
+[27,]      82     89     59     20       230        289.5            231.5
+[28,]      73     85     57     19       223        298.2            245.1
+[29,]      65     82     54     18       215        306.6            259.1
+[30,]      58     78     52     17       207        314.5            273.3
+[31,]      51     74     49     16       198        322.0            288.4
+
+$trtA
+      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+ [1,]    1000      0      0    0.0         0          0.0              0.0
+ [2,]     916     50     20   10.0         0          0.0              4.4
+ [3,]     839     79     36   17.0        16          4.5              9.0
+ [4,]     768     95     47   22.1        42         12.1             14.0
+ [5,]     703    103     54   25.6        74         22.0             19.2
+ [6,]     643    105     58   27.8       107         33.5             24.7
+ [7,]     588    105     61   28.9       141         45.9             30.5
+ [8,]     537    103     61   29.2       174         58.8             36.7
+ [9,]     490    100     60   28.9       206         71.9             43.2
+[10,]     448     96     59   28.2       235         84.8             50.2
+[11,]     408     91     57   27.2       261         97.4             57.7
+[12,]     372     87     55   26.0       285        109.5             65.6
+[13,]     339     83     53   24.7       306        121.1             73.9
+[14,]     308     79     50   23.4       324        132.1             82.7
+[15,]     280     75     48   22.1       340        142.5             92.1
+[16,]     255     71     46   20.8       354        152.3            102.0
+[17,]     231     67     44   19.6       365        161.6            112.3
+[18,]     209     64     42   18.4       374        170.2            123.1
+[19,]     189     60     39   17.2       381        178.3            134.4
+[20,]     171     57     38   16.1       385        186.0            146.2
+[21,]     155     54     36   15.1       389        193.1            158.3
+[22,]     140     52     34   14.2       390        199.8            170.7
+[23,]     126     49     32   13.3       390        206.0            183.6
+[24,]     113     47     31   12.5       388        211.9            197.0
+[25,]     102     44     29   11.7       385        217.4            210.8
+[26,]      91     42     28   10.9       381        222.5            225.1
+[27,]      82     40     26   10.3       375        227.3            239.8
+[28,]      73     38     25    9.6       368        231.8            254.9
+[29,]      65     36     24    9.0       360        236.0            270.6
+[30,]      58     34     22    8.4       351        239.9            286.7
+[31,]      51     32     21    7.8       340        243.5            304.1
+
+$trtB
+      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+ [1,]    1000      0      0      0         0          0.0              0.0
+ [2,]     916     50     20     10         0          0.0              4.4
+ [3,]     839     79     36     17        16          4.5              9.0
+ [4,]     768     96     47     22        41         12.1             14.0
+ [5,]     703    106     55     26        70         22.0             19.2
+ [6,]     643    112     61     28        99         33.5             24.7
+ [7,]     588    115     64     29       127         46.0             30.5
+ [8,]     537    117     67     30       154         59.1             36.7
+ [9,]     490    117     68     30       178         72.5             43.2
+[10,]     448    118     69     30       200         86.0             50.2
+[11,]     408    117     69     30       219         99.4             57.6
+[12,]     372    116     69     29       236        112.5             65.5
+[13,]     339    115     68     28       250        125.4             73.9
+[14,]     308    114     67     27       262        137.9             82.6
+[15,]     280    113     66     27       272        150.1             91.9
+[16,]     255    111     65     26       280        161.9            101.7
+[17,]     231    109     64     25       286        173.3            111.9
+[18,]     209    107     63     24       290        184.3            122.6
+[19,]     189    105     61     23       293        194.9            133.7
+[20,]     171    102     60     22       294        205.2            145.1
+[21,]     155    100     59     21       294        215.0            156.9
+[22,]     140     97     57     21       292        224.5            168.9
+[23,]     126     94     55     20       290        233.6            181.4
+[24,]     113     91     54     19       286        242.4            194.2
+[25,]     102     89     52     18       281        250.7            207.4
+[26,]      91     86     50     17       276        258.8            220.9
+[27,]      82     83     48     17       270        266.4            234.7
+[28,]      73     79     46     16       263        273.7            248.9
+[29,]      65     76     45     15       255        280.7            263.4
+[30,]      58     73     43     14       246        287.3            278.4
+[31,]      51     69     41     14       237        293.5            294.3
+
+$trtC
+      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+ [1,]    1000      0      0      0         0          0.0              0.0
+ [2,]     916     50     20     10         0          0.0              4.4
+ [3,]     839     79     36     17        16          4.5              9.0
+ [4,]     768     95     47     22        42         12.1             14.0
+ [5,]     703    104     55     26        72         22.0             19.2
+ [6,]     643    109     60     28       103         33.5             24.7
+ [7,]     588    110     63     29       134         46.0             30.5
+ [8,]     537    110     64     30       164         59.0             36.7
+ [9,]     490    109     64     30       191         72.2             43.2
+[10,]     448    107     64     29       216         85.4             50.2
+[11,]     408    105     63     28       239         98.4             57.7
+[12,]     372    103     62     28       258        111.1             65.6
+[13,]     339    101     61     27       276        123.3             73.9
+[14,]     308     98     60     26       291        135.2             82.7
+[15,]     280     96     58     25       303        146.5             92.0
+[16,]     255     93     57     23       313        157.4            101.8
+[17,]     231     90     55     22       321        167.8            112.1
+[18,]     209     88     53     21       327        177.8            122.8
+[19,]     189     85     52     21       332        187.3            134.0
+[20,]     171     83     50     20       334        196.4            145.6
+[21,]     155     80     49     19       335        205.0            157.6
+[22,]     140     77     47     18       335        213.2            169.7
+[23,]     126     75     45     17       333        221.1            182.4
+[24,]     113     72     44     16       330        228.6            195.4
+[25,]     102     70     42     15       326        235.7            208.9
+[26,]      91     67     41     15       321        242.5            222.8
+[27,]      82     64     39     14       315        248.9            237.0
+[28,]      73     62     37     13       308        255.0            251.6
+[29,]      65     59     36     13       300        260.8            266.7
+[30,]      58     57     34     12       291        266.3            282.1
+[31,]      51     54     32     11       281        271.4            298.7</code></pre>
+</div>
+</div>
+</section>
+<section id="icer-re-calculation" class="level1">
+<h1>ICER re-calculation</h1>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m_M_simplified <span class="ot">=</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  m_M_phd <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(.x)){</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      .x[i,<span class="dv">6</span>] <span class="ot">=</span> .x[i,<span class="st">"Death_Cancer"</span>] <span class="sc">+</span> .x[i,<span class="st">"Death_Background"</span>]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    .x <span class="ot">=</span> .x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(.x)[<span class="dv">6</span>] <span class="ot">=</span> <span class="st">"Death"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(.x) <span class="ot">=</span> <span class="dv">0</span><span class="sc">:</span>(params_sc<span class="sc">$</span>n_cycles)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    .x</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">calculate_icers</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">cost =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>cost,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">effect =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>qaly,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> v_names_str)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Strategy     Cost Effect Inc_Cost Inc_Effect  ICER Status
+quo       quo 25104025  13832       NA         NA    NA     ND
+trtA     trtA 66356870  14348 41252844        516 79971     ND
+trtB     trtB 50429119  14018       NA         NA    NA     ED
+trtC     trtC 73553288  14166       NA         NA    NA      D</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,179 @@
+---
+title: "Add the Time-Varying Variable into Markov Model"
+author: "Astrid Yu, Ashley Leech"
+date: "`r Sys.Date()`"
+format: 
+  html: 
+    toc: true
+    code-fold: show
+---
+
+Based on the last tutorial of Markov Model in R, we will add background mortality using a cause-deleted life table. 
+
+```{r prev, message=FALSE, warning=FALSE,results='hide'}
+library(knitr)
+# knit('MarkovDA.qmd', tangle=TRUE)
+# source('MarkovDA.R')
+source(purl("MarkovDA.qmd", output = tempfile()))
+options("scipen"=1000, "digits"=2)
+```
+
+# Dive into Life Table
+
+## Where to get the US life table
+
+<https://www.cdc.gov/nchs/products/life_tables.htm> [CDC website]
+
+We are using United States Life Tables(2020) -- remember to distinguish the life tables for the male and the female.
+
+Male: <https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table02.xlsx>
+
+Female: <https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/NVSR/71-01/Table03.xlsx>
+
+| Name | Description                                    |
+|------|------------------------------------------------|
+| qx   | Probability of dying between ages x and x + 1  |
+| lx   | Number surviving to age x                      |
+| dx   | Number dying between ages x and x + 1          |
+| Lx   | Person-years lived between ages x and x + 1    |
+| Tx   | Total number of person-years lived above age x |
+| ex   | Expectation of life at age x                   |
+
+```{r life-table}
+input_file = normalizePath(here("exercise/markov_exercise_phd.xlsx"))
+life_table_raw = readxl::read_xlsx(input_file,sheet="Life Table - Male",col_types ="numeric")[-1,]
+names(life_table_raw) = c("Age", "qx", "lx", "dx", "Lx", "Tx", "ex")
+```
+
+## Where to get the specific-cause death
+
+Here we set all our patients are initially 45-yr men with the prostate cancer. 
+
+<https://vizhub.healthdata.org/gbd-results/>[GBD query tool]
+
+GBD results provide the % of deaths due to a specific cause by age (every 5 years) and sex groups.
+
+Using filters like:
+
+![](exercise/prostate-cancer-cause-death.png)
+
+![](exercise/GBD-download-request.png)
+
+## How to calculate the cause-deleted life table
+
+```{r clean-GBD}
+cause_death_m = read.csv("exercise/GBD_2019_prostate.csv") %>%
+  select(age,val,upper,lower)
+
+cause_death_m1 = cause_death_m %>% filter(str_detect(age, "<")) %>%
+  mutate(start = 0, 
+         reptimes = as.numeric(str_sub(age,
+                                       unlist(gregexpr('<', age))[1]+1,
+                                       unlist(gregexpr(' ', age))[1]-1)),
+         end = start + reptimes - 1)
+
+cause_death_m2 = cause_death_m %>% 
+  filter(str_detect(age,"-") & !str_detect(age, " ")) %>%
+  rowwise %>%
+  mutate(start = as.numeric(str_sub(age,1,unlist(gregexpr('-', age))[1]-1)),
+         end = as.numeric(str_sub(age,unlist(gregexpr('-', age))[1]+1,str_length(age))),
+         reptimes = end - start + 1)
+
+cause_death_m3 = cause_death_m %>% filter(str_detect(age,"-") & str_detect(age, " ")) %>%
+  rowwise %>%
+  mutate(start = as.numeric(str_sub(age,1,unlist(gregexpr('-', age))[1]-1)),
+         end = as.numeric(str_sub(age,unlist(gregexpr('-', age))[1]+1,unlist(gregexpr(' ', age))[1]-1)),
+         reptimes = end - start + 1)
+
+cause_death_male = rbind(
+  as.data.frame(lapply(cause_death_m1, rep, cause_death_m1$reptimes)) %>%
+    group_by(age) %>%
+    mutate(Age = start - 1 + 1:n()) %>%
+    ungroup(),
+  as.data.frame(lapply(cause_death_m2, rep, cause_death_m2$reptimes)) %>%
+    group_by(age) %>%
+    mutate(Age = start - 1 + 1:n()) %>%
+    ungroup(),
+  as.data.frame(lapply(cause_death_m3, rep, cause_death_m3$reptimes)) %>%
+    group_by(age) %>%
+    mutate(Age = start - 1 + 1:n()) %>%
+    ungroup()) %>%
+  arrange(Age) %>%
+  select(Age, val, upper, lower)
+
+maxage = min(max(life_table_raw$Age), max(cause_death_male$Age))
+minage_cause = min(cause_death_male$Age)
+mlt2020 = life_table_raw[(minage_cause+1):(maxage+1),]
+
+## dx
+mlt2020_nonCause = rbind(life_table_raw[1:minage_cause, c("Age","dx")],
+                         data.frame(Age = minage_cause:maxage, 
+                                    dx = mlt2020[, "dx"] * (1-cause_death_male[, "val"])),
+                         life_table_raw[(maxage+2):nrow(life_table_raw),c("Age","dx")])
+
+mlt2020_cause = data.frame(Age = minage_cause:maxage,
+                         dx = mlt2020[, "dx"] * cause_death_male[, "val"])
+
+# sum(mlt2020_cause$dx) + sum(mlt2020_nonCause$dx)
+
+# back dx to qx
+for (i in 1:nrow(mlt2020_nonCause)){
+  mlt2020_nonCause[i, "qx"] = mlt2020_nonCause[i, "dx"] / sum(mlt2020_nonCause[i:nrow(mlt2020_nonCause), "dx"])
+}
+```
+
+# Build a loop to process Markov Model & Background Mortality
+
+```{r loop}
+
+
+# here use the cause-deleted life table
+m_M_phd = death_background = death_cancer = list()
+# setting
+start_age = 45
+
+for (i in 1:n_strategies) {
+  #initialization
+  death_cancer[[v_names_str[i]]] = c(0)
+  death_background[[v_names_str[i]]] = c(0)
+  
+  m_M_phd[[v_names_str[i]]] = matrix(0, nrow = params_sc$n_cycles+1, ncol = v_n_states, dimnames = list(NULL, v_names_states))
+  m_M_phd[[v_names_str[i]]][1,] = c(params_sc$nPop, rep(0,times=5))
+  
+  for (cycle in 1:params_sc$n_cycles) {
+    m_M_phd[[v_names_str[i]]][cycle+1,] = m_M_phd[[v_names_str[i]]][cycle,] %*% m_P[[v_names_str[i]]] * (1-mlt2020_nonCause[(cycle + start_age),"qx"] %>% pull())
+
+    death_background[[v_names_str[i]]][cycle+1] = sum(m_M_phd[[v_names_str[i]]][cycle,1:5]) * (mlt2020_nonCause[(cycle + start_age),"qx"] %>% pull()) + death_background[[v_names_str[i]]][cycle]
+    
+    death_cancer[[v_names_str[i]]][cycle+1] = round(params_sc$nPop - sum(m_M_phd[[v_names_str[i]]][cycle+1,1:5]) - death_background[[v_names_str[i]]][cycle+1],2)
+
+  }
+  
+  m_M_phd[[v_names_str[i]]] = cbind(m_M_phd[[v_names_str[i]]][,1:5], matrix(death_cancer[[v_names_str[i]]]), matrix(death_background[[v_names_str[i]]]))
+  colnames(m_M_phd[[v_names_str[i]]])[6:7] = c("Death_Cancer", "Death_Background")
+  }
+  
+m_M_phd
+```
+
+# ICER re-calculation
+
+```{r ICER_bg_mortality}
+m_M_simplified = 
+  m_M_phd %>% 
+  map(~ {
+    for (i in 1:nrow(.x)){
+      .x[i,6] = .x[i,"Death_Cancer"] + .x[i,"Death_Background"]
+    }
+    .x = .x[,1:6]
+    colnames(.x)[6] = "Death"
+    rownames(.x) = 0:(params_sc$n_cycles)
+    .x
+  }
+  )
+
+calculate_icers(
+  cost = get_ce(l_m_M = m_M_simplified, payoffs = build_payoffs(params_sc), params_sc)$cost,
+  effect = get_ce(l_m_M = m_M_simplified, payoffs = build_payoffs(params_sc), params_sc)$qaly,
+                           strategies = v_names_str)
+```

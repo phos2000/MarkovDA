@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Astrid Yu, Ashley Leech">
+<meta name="dcterms.date" content="2023-03-01">
+
+<title>Lab in R codes - How to Create Markov Model using R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">How to Create Markov Model using R</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Lab in R codes</a> 
+    </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./MarkovDA.html" class="sidebar-item-text sidebar-link active">Basic Markov Model</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AddingMortality.html" class="sidebar-item-text sidebar-link">Advanced Markov Model</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#markov-in-class-exercise" id="toc-markov-in-class-exercise" class="nav-link active" data-scroll-target="#markov-in-class-exercise">Markov In-Class Exercise</a></li>
+  <li><a href="#step-1-parameterize-the-model" id="toc-step-1-parameterize-the-model" class="nav-link" data-scroll-target="#step-1-parameterize-the-model">Step 1: Parameterize the Model</a></li>
+  <li><a href="#step-2-matrices" id="toc-step-2-matrices" class="nav-link" data-scroll-target="#step-2-matrices">Step 2: Matrices</a>
+  <ul class="collapse">
+  <li><a href="#if-all-probabilities-known-no-rate-to-probabilities-transitions" id="toc-if-all-probabilities-known-no-rate-to-probabilities-transitions" class="nav-link" data-scroll-target="#if-all-probabilities-known-no-rate-to-probabilities-transitions">If All Probabilities Known (No Rate-to-Probabilities Transitions)</a></li>
+  <li><a href="#rate-to-probability-conversion-formulas" id="toc-rate-to-probability-conversion-formulas" class="nav-link" data-scroll-target="#rate-to-probability-conversion-formulas">Rate-to-Probability Conversion Formulas</a></li>
+  <li><a href="#rate-to-probability-matrix-exponentiation" id="toc-rate-to-probability-matrix-exponentiation" class="nav-link" data-scroll-target="#rate-to-probability-matrix-exponentiation">Rate-to-Probability Matrix Exponentiation</a></li>
+  </ul></li>
+  <li><a href="#step-3-payoffs" id="toc-step-3-payoffs" class="nav-link" data-scroll-target="#step-3-payoffs">Step 3: Payoffs</a></li>
+  <li><a href="#step-4-markov-traces" id="toc-step-4-markov-traces" class="nav-link" data-scroll-target="#step-4-markov-traces">Step 4: Markov Traces</a></li>
+  <li><a href="#step-5-total-costs-and-qalys" id="toc-step-5-total-costs-and-qalys" class="nav-link" data-scroll-target="#step-5-total-costs-and-qalys">Step 5: Total Costs and Qalys</a></li>
+  <li><a href="#step-6-cea-results-and-icers" id="toc-step-6-cea-results-and-icers" class="nav-link" data-scroll-target="#step-6-cea-results-and-icers">Step 6: CEA results and ICERs</a></li>
+  <li><a href="#step-7-one-way-sensitive-analysis" id="toc-step-7-one-way-sensitive-analysis" class="nav-link" data-scroll-target="#step-7-one-way-sensitive-analysis">Step 7: One-way Sensitive Analysis</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">How to Create Markov Model using R</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Astrid Yu, Ashley Leech </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 1, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="markov-in-class-exercise" class="level1">
+<h1>Markov In-Class Exercise</h1>
+<p>We are tasked to examine the economic value of new treatments for a rare type of cancer. The new treatments were designed to increase the health of patients in remission &amp; to prevent them from relapsing back to either Stage 1 or Stage 2.</p>
+<p><img src="exercise/markov_diagram.png" class="img-fluid"></p>
+<p>Before the new drugs development, the transition probabilities were the following:</p>
+<table class="table">
+<colgroup>
+<col style="width: 84%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Description</th>
+<th>Probability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Probability of transition from Healthy to Stage 1</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Healthy to Stage 2</td>
+<td>2%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Healthy to Stage 3</td>
+<td>1%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Stage 1 to Stage 2</td>
+<td>10%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Stage 1 to Remission</td>
+<td>25%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Stage 2 to Stage 1</td>
+<td>5%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Stage 2 to Stage 3</td>
+<td>15%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Stage 2 to Remission</td>
+<td>20%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Stage 3 to Stage 2</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Stage 3 to Death</td>
+<td>45%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Remission to Stage 1</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Remission to Stage 2</td>
+<td>5%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Remission to Stage 1 when on Treatment A</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Remission to Stage 2 when on Treatment A</td>
+<td>5%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Remission to Stage 1 when on Treatment B</td>
+<td>8%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Remission to Stage 2 when on Treatment B</td>
+<td>3%</td>
+</tr>
+<tr class="odd">
+<td>Probability of transition from Remission to Stage 1 when on Treatment C</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>Probability of transition from Remission to Stage 2 when on Treatment C</td>
+<td>2%</td>
+</tr>
+</tbody>
+</table>
+<p>Each health state is associated with the following utilities:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Description</th>
+<th>Utility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Utility of Healthy per cycle</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>Utility of Stage 1 per cycle</td>
+<td>0.88</td>
+</tr>
+<tr class="odd">
+<td>Utility of Stage 2 per cycle</td>
+<td>0.71</td>
+</tr>
+<tr class="even">
+<td>Utility of Stage 3 per cycle</td>
+<td>0.36</td>
+</tr>
+<tr class="odd">
+<td>Utility of Remission per cycle</td>
+<td>0.95</td>
+</tr>
+</tbody>
+</table>
+<p>Patients in certain health states have to take medications and visit their treating physician on a regular basis:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Description</th>
+<th>Costs / Other</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Number of visits per cycle in Stage 1</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>Number of visits per cycle in Stage 2</td>
+<td>12</td>
+</tr>
+<tr class="odd">
+<td>Number of visits per cycle in Stage 3</td>
+<td>52</td>
+</tr>
+<tr class="even">
+<td>Number of visits per cycle in Remission</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>Cost of a visit</td>
+<td>$ 100</td>
+</tr>
+<tr class="even">
+<td>Cost of treatment per cycle in Stage 1</td>
+<td>$ 1,200</td>
+</tr>
+<tr class="odd">
+<td>Cost of treatment per cycle in Stage 2</td>
+<td>$ 6,000</td>
+</tr>
+<tr class="even">
+<td>Cost of treatment per cycle in Stage 3</td>
+<td>$ 18,000</td>
+</tr>
+<tr class="odd">
+<td>Cost of status quo per cycle in Remission</td>
+<td>$ 400</td>
+</tr>
+<tr class="even">
+<td>Cost of Treatment A per cycle in Remission</td>
+<td>$ 10,000</td>
+</tr>
+<tr class="odd">
+<td>Cost of Treatment B per cycle in Remission</td>
+<td>$ 7,500</td>
+</tr>
+<tr class="even">
+<td>Cost of Treatment C per cycle in Remission</td>
+<td>$ 12,500</td>
+</tr>
+</tbody>
+</table>
+<p>Assume an annual discount rate of 3% and a 30-year time horizon.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What You Need to Prepare:</strong></p>
+<ol type="1">
+<li>the Exercise excel file: we have the initial values for all the parameters and the procedures displayed in the excel formula.</li>
+<li>the Function R file: it includes some advanced and long functions for the process. Lots of the functions are included in the <em>dampack</em> R package.</li>
+<li>R Studio or R. – I highly recommende you to use R Studio</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="step-1-parameterize-the-model" class="level1 page-columns page-full">
+<h1>Step 1: Parameterize the Model</h1>
+<p>Here we use the excel to upload all the parameters provided in the excel.</p>
+<p>Another ways is to define the parameters directly in the R.</p>
+<p>We get a list of parameters named <em>param_sc</em>.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> type </th>
+   <th style="text-align:left;"> prefix </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Probability </td>
+   <td style="text-align:left;"> p_ </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Rate </td>
+   <td style="text-align:left;"> r_ </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Matrix </td>
+   <td style="text-align:left;"> m_ </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Cost </td>
+   <td style="text-align:left;"> c_ </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Utility </td>
+   <td style="text-align:left;"> u_ </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hazard Ratio </td>
+   <td style="text-align:left;"> hr_ </td>
+  </tr>
+</tbody>
+</table>
+
+</div></div></div>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>input_file <span class="ot">=</span> <span class="fu">normalizePath</span>(<span class="fu">here</span>(<span class="st">"exercise/markov_exercise.xlsx"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>input_raw <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(input_file,<span class="at">sheet=</span><span class="st">"Parameters"</span>)[,<span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>params_sc <span class="ot">=</span> input_raw <span class="sc">%&gt;%</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Variable name</span><span class="st">`</span>, Value) <span class="sc">%&gt;%</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">deframe</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.list</span>()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># list2env(params_sc, envir=.GlobalEnv)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>v_names_states <span class="ot">=</span> <span class="fu">str_sub</span>(<span class="fu">names</span>(<span class="fu">as_tibble</span>(params_sc) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"u"</span>))), <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>v_n_states <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_states)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>v_names_str <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"quo"</span>, <span class="fu">str_c</span>(<span class="st">"t"</span>,<span class="fu">str_sub</span>(<span class="fu">names</span>(<span class="fu">as_tibble</span>(params_sc) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"cTrt"</span>))), <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>)))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>n_strategies <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_str)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"scipen"</span><span class="ot">=</span><span class="dv">1000</span>, <span class="st">"digits"</span><span class="ot">=</span><span class="dv">2</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">as_tibble</span>(params_sc)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"input params from excel"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">height =</span> <span class="st">"400px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; "><table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>input params from excel</caption>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> nPop </td>
+   <td style="text-align:right;"> 1000.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> n_cycles </td>
+   <td style="text-align:right;"> 30.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cycle_length </td>
+   <td style="text-align:right;"> 1.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> wtp </td>
+   <td style="text-align:right;"> 5200.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> discount_rate </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pHealthyStage1 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pHealthyStage2 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pHealthyStage3 </td>
+   <td style="text-align:right;"> 0.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage1Stage2 </td>
+   <td style="text-align:right;"> 0.10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage1Remission </td>
+   <td style="text-align:right;"> 0.25 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage2Stage1 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage2Stage3 </td>
+   <td style="text-align:right;"> 0.15 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage2Remission </td>
+   <td style="text-align:right;"> 0.20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage3Stage2 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pStage3Death </td>
+   <td style="text-align:right;"> 0.45 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage1 </td>
+   <td style="text-align:right;"> 0.10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage2 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage1_trtA </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage2_trtA </td>
+   <td style="text-align:right;"> 0.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage1_trtB </td>
+   <td style="text-align:right;"> 0.08 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage2_trtB </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage1_trtC </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pRemissionStage2_trtC </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rHealthyStage1 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rHealthyStage2 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rHealthyStage3 </td>
+   <td style="text-align:right;"> 0.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage1Stage2 </td>
+   <td style="text-align:right;"> 0.12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage1Remission </td>
+   <td style="text-align:right;"> 0.31 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage2Stage1 </td>
+   <td style="text-align:right;"> 0.06 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage2Stage3 </td>
+   <td style="text-align:right;"> 0.19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage2Remission </td>
+   <td style="text-align:right;"> 0.26 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage3Stage2 </td>
+   <td style="text-align:right;"> 0.07 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rStage3Death </td>
+   <td style="text-align:right;"> 0.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rRemissionStage1 </td>
+   <td style="text-align:right;"> 0.11 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rRemissionStage2 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage1_trtA </td>
+   <td style="text-align:right;"> 0.19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage2_trtA </td>
+   <td style="text-align:right;"> 0.19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage1_trtB </td>
+   <td style="text-align:right;"> 0.78 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage2_trtB </td>
+   <td style="text-align:right;"> 0.59 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage1_trtC </td>
+   <td style="text-align:right;"> 0.48 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> hrRemissionStage2_trtC </td>
+   <td style="text-align:right;"> 0.38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nVisitsStage1 </td>
+   <td style="text-align:right;"> 4.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nVisitsStage2 </td>
+   <td style="text-align:right;"> 12.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nVisitsStage3 </td>
+   <td style="text-align:right;"> 52.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nVisitsRemission </td>
+   <td style="text-align:right;"> 1.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cVisit </td>
+   <td style="text-align:right;"> 100.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTreatmentStage1 </td>
+   <td style="text-align:right;"> 1200.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTreatmentStage2 </td>
+   <td style="text-align:right;"> 6000.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTreatmentStage3 </td>
+   <td style="text-align:right;"> 18000.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTreatmentRemission </td>
+   <td style="text-align:right;"> 400.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTrtA </td>
+   <td style="text-align:right;"> 10000.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTrtB </td>
+   <td style="text-align:right;"> 7500.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cTrtC </td>
+   <td style="text-align:right;"> 12500.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uHealthy </td>
+   <td style="text-align:right;"> 1.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uStage1 </td>
+   <td style="text-align:right;"> 0.88 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uStage2 </td>
+   <td style="text-align:right;"> 0.71 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uStage3 </td>
+   <td style="text-align:right;"> 0.36 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uRemission </td>
+   <td style="text-align:right;"> 0.95 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> uDeath </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+</tbody>
+</table></div>
+
+</div>
+</div>
+</section>
+<section id="step-2-matrices" class="level1">
+<h1>Step 2: Matrices</h1>
+<p>With all the probabilities for transitions among all the stages, we’d like to build a transition probability matrix which would contribute to building Markov model traces later.</p>
+<p>However, we might not have all the probabilities at the beginning. We also mention how to change rates into probabilities here.</p>
+<section id="if-all-probabilities-known-no-rate-to-probabilities-transitions" class="level2">
+<h2 class="anchored" data-anchor-id="if-all-probabilities-known-no-rate-to-probabilities-transitions">If All Probabilities Known (No Rate-to-Probabilities Transitions)</h2>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>build_matrices <span class="ot">&lt;-</span> <span class="cf">function</span>(params, mtype) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  m_X <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> v_names_str){</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    m_X_ <span class="ot">=</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> v_n_states, <span class="at">ncol =</span> v_n_states, <span class="at">dimnames =</span> <span class="fu">list</span>(v_names_states,v_names_states))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">rownames</span>(m_X_)) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">colnames</span>(m_X_)) {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">paste0</span>(mtype,i,j) <span class="sc">%in%</span> <span class="fu">names</span>(params)) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>          m_X_[i,j] <span class="ot">=</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(mtype,i,j)])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (mtype <span class="sc">==</span> <span class="st">"p"</span>) {</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      <span class="do">## if drawing the probabilities from the given parameters and building a probability matrix</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">paste0</span>(<span class="st">"pRemissionStage1_"</span>,m) <span class="sc">%in%</span> <span class="fu">names</span>(params)) {</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="do">## the relapse probs change over the strategies. A special rule here. </span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage1"</span>] <span class="ot">=</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"pRemissionStage1_"</span>,m)])</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage2"</span>] <span class="ot">=</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"pRemissionStage2_"</span>,m)])</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>v_n_states) {</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        m_X_[n,n] <span class="ot">=</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">sum</span>(m_X_[n,])</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      <span class="do">## if drawing the rates from the given paramters and building a rate matrix</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">paste0</span>(<span class="st">"hrRemissionStage1_"</span>,m) <span class="sc">%in%</span> <span class="fu">names</span>(params)) {</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="do">## use the hazard ratios to adjust the relapse rates over the strategies. </span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage1"</span>] <span class="ot">=</span> m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage1"</span>] <span class="sc">*</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"hrRemissionStage1_"</span>,m)])</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage2"</span>] <span class="ot">=</span> m_X_[<span class="st">"Remission"</span>,<span class="st">"Stage2"</span>] <span class="sc">*</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"hrRemissionStage2_"</span>,m)])</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>v_n_states) {</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        m_X_[n,n] <span class="ot">=</span> <span class="sc">-</span><span class="fu">sum</span>(m_X_[n,])</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    m_X[[m]] <span class="ot">=</span> m_X_</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  m_X</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>m_P <span class="ot">=</span> <span class="fu">build_matrices</span>(params_sc, <span class="st">"p"</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>m_P</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.10   0.05   0.00      0.85  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtA
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.02   0.01   0.00      0.97  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtB
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.08   0.03   0.00      0.89  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtC
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.05   0.02   0.00      0.93  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00</code></pre>
+</div>
+</div>
+<p>If having a rate matrix instead of all the probabilities, there are two ways to convert it to a probability matrix.</p>
+</section>
+<section id="rate-to-probability-conversion-formulas" class="level2">
+<h2 class="anchored" data-anchor-id="rate-to-probability-conversion-formulas">Rate-to-Probability Conversion Formulas</h2>
+<p><span class="math display">\[
+p_{HealthyStage1}= \frac{r_{HealthyStage1}}{r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3}}\big ( 1 - e^{-(r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3})\Delta t}\big )
+\]</span></p>
+<p><span class="math display">\[
+p_{HealthyHealthy} = e^{-(r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3})\Delta t}
+\]</span></p>
+<p>In the above formulas, <code>r_*</code> is a transition rate and <span class="math inline">\(\Delta t\)</span> is the timestep, which in the Excel document is set to a value of 1 and stored in the variable <code>n_cycle_length</code>.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m_P_form <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_P_ <span class="ot">=</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> v_n_states, <span class="at">ncol =</span> v_n_states, <span class="at">dimnames =</span> <span class="fu">list</span>(v_names_states,v_names_states))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> v_names_states) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  tempsum <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">as_tibble</span>(params_sc) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="fu">paste0</span>(<span class="st">"r"</span>,i))))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> v_names_states) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">paste0</span>(<span class="st">"r"</span>,i,j) <span class="sc">%in%</span> <span class="fu">names</span>(params_sc)) {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      ptemp <span class="ot">=</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"r"</span>,i,j)]] <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>tempsum)) <span class="sc">/</span> tempsum</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (j <span class="sc">==</span> i) {</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      ptemp <span class="ot">=</span> <span class="fu">exp</span>(<span class="sc">-</span>tempsum)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      ptemp <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    m_P_[i,j] <span class="ot">=</span> ptemp</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m_P_form[[v_names_str[<span class="dv">1</span>]]] <span class="ot">=</span> m_P_</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (str <span class="cf">in</span> v_names_str[<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]) {</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage1_"</span>,str)]] <span class="ot">=</span> params_sc<span class="sc">$</span>rRemissionStage1 <span class="sc">*</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"hrRemissionStage1_"</span>,str)]]</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage2_"</span>,str)]] <span class="ot">=</span> params_sc<span class="sc">$</span>rRemissionStage2 <span class="sc">*</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"hrRemissionStage2_"</span>,str)]]</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  m_P_form[[str]] <span class="ot">=</span> m_P_</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  tempsum <span class="ot">=</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage1_"</span>,str)]] <span class="sc">+</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage2_"</span>,str)]]</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  m_P_form[[str]][<span class="st">"Remission"</span>, <span class="st">"Stage1"</span>] <span class="ot">=</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage1_"</span>,str)]] <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>tempsum)) <span class="sc">/</span> tempsum</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  m_P_form[[str]][<span class="st">"Remission"</span>, <span class="st">"Stage2"</span>] <span class="ot">=</span> params_sc[[<span class="fu">paste0</span>(<span class="st">"rRemissionStage2_"</span>,str)]] <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>tempsum)) <span class="sc">/</span> tempsum</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  m_P_form[[str]][<span class="st">"Remission"</span>, <span class="st">"Remission"</span>] <span class="ot">=</span> <span class="fu">exp</span>(<span class="sc">-</span>tempsum)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>m_P_form</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.10   0.05   0.00      0.85  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtA
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.02   0.01   0.00      0.97  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtB
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.08   0.03   0.00      0.89  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00
+
+$trtC
+          Healthy Stage1 Stage2 Stage3 Remission Death
+Healthy      0.92   0.05   0.02   0.01      0.00  0.00
+Stage1       0.00   0.65   0.10   0.00      0.25  0.00
+Stage2       0.00   0.05   0.60   0.15      0.20  0.00
+Stage3       0.00   0.00   0.05   0.50      0.00  0.45
+Remission    0.00   0.05   0.02   0.00      0.93  0.00
+Death        0.00   0.00   0.00   0.00      0.00  1.00</code></pre>
+</div>
+</div>
+</section>
+<section id="rate-to-probability-matrix-exponentiation" class="level2">
+<h2 class="anchored" data-anchor-id="rate-to-probability-matrix-exponentiation">Rate-to-Probability Matrix Exponentiation</h2>
+<p>Instead of converting the rates one-by-one, matrix exponentiation is a quicker way to convert all.</p>
+<p>Considering the covariance of the rates here, it is also more accurate.</p>
+<p>However, if we have both rates and probabilities mixed, there will be two steps:</p>
+<ol type="1">
+<li><p>convert all the probabilities to rates using the conversion formula;</p></li>
+<li><p>use the matrix exponentiation to convert the rate matrix to the probability matrix.</p></li>
+</ol>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m_R <span class="ot">=</span> <span class="fu">build_matrices</span>(params_sc, <span class="st">"r"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m_P_expm <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> v_names_str){</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  m_P_expm[[m]] <span class="ot">=</span> <span class="fu">expm</span>(m_R[[m]])</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>m_P_expm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+          Healthy Stage1 Stage2 Stage3 Remission   Death
+Healthy      0.92 0.0413  0.018 0.0086    0.0088 0.00287
+Stage1       0.00 0.6649  0.084 0.0072    0.2425 0.00170
+Stage2       0.00 0.0500  0.611 0.1057    0.1923 0.04056
+Stage3       0.00 0.0015  0.038 0.5035    0.0058 0.45087
+Remission    0.00 0.0827  0.044 0.0036    0.8689 0.00082
+Death        0.00 0.0000  0.000 0.0000    0.0000 1.00000
+
+$trtA
+          Healthy Stage1 Stage2  Stage3 Remission   Death
+Healthy      0.92 0.0411 0.0182 0.00864    0.0092 0.00287
+Stage1       0.00 0.6549 0.0784 0.00693    0.2581 0.00165
+Stage2       0.00 0.0420 0.6072 0.10550    0.2048 0.04052
+Stage3       0.00 0.0013 0.0382 0.50354    0.0061 0.45087
+Remission    0.00 0.0165 0.0088 0.00071    0.9739 0.00016
+Death        0.00 0.0000 0.0000 0.00000    0.0000 1.00000
+
+$trtB
+          Healthy Stage1 Stage2 Stage3 Remission  Death
+Healthy      0.92 0.0413  0.018 0.0086    0.0089 0.0029
+Stage1       0.00 0.6624  0.081 0.0071    0.2478 0.0017
+Stage2       0.00 0.0479  0.609 0.1056    0.1965 0.0405
+Stage3       0.00 0.0015  0.038 0.5035    0.0059 0.4509
+Remission    0.00 0.0659  0.027 0.0022    0.9041 0.0005
+Death        0.00 0.0000  0.000 0.0000    0.0000 1.0000
+
+$trtC
+          Healthy Stage1 Stage2 Stage3 Remission   Death
+Healthy      0.92 0.0412  0.018 0.0086    0.0091 0.00287
+Stage1       0.00 0.6586  0.080 0.0070    0.2530 0.00167
+Stage2       0.00 0.0449  0.608 0.1056    0.2007 0.04053
+Stage3       0.00 0.0014  0.038 0.5035    0.0060 0.45087
+Remission    0.00 0.0412  0.018 0.0014    0.9390 0.00033
+Death        0.00 0.0000  0.000 0.0000    0.0000 1.00000</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="step-3-payoffs" class="level1">
+<h1>Step 3: Payoffs</h1>
+<p>Here we also try to build a matrix of payoffs which helps calculating the costs and QALYs for the traces.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>build_payoffs <span class="ot">=</span> <span class="cf">function</span>(params){</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  payoffs <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  cost_basic <span class="ot">=</span> <span class="fu">c</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  cost_basic[<span class="st">"Healthy"</span>] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> v_names_states[<span class="dv">2</span><span class="sc">:</span>(v_n_states<span class="dv">-1</span>)]) {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    cost_basic[i] <span class="ot">=</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"cTreatment"</span>,i)]) <span class="sc">+</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"nVisits"</span>,i)]) <span class="sc">*</span> params<span class="sc">$</span>cVisit</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  cost_basic[<span class="st">"Death"</span>] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  payoffs[[<span class="st">"quo"</span>]] <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">c</span>(cost_basic, <span class="fu">as_vector</span>(<span class="fu">as_tibble</span>(params) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"u"</span>)))),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"costs"</span>, <span class="st">"qalys"</span>), v_names_states))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> v_names_str[<span class="dv">2</span><span class="sc">:</span>n_strategies]) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    payoffs[[m]] <span class="ot">=</span> payoffs[[<span class="st">"quo"</span>]]</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    payoffs[[m]][<span class="st">"costs"</span>,<span class="st">"Remission"</span>] <span class="ot">=</span> payoffs[[m]][<span class="st">"costs"</span>,<span class="st">"Remission"</span>] <span class="sc">+</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"cT"</span>,<span class="fu">str_sub</span>(m,<span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>))]) <span class="sc">-</span> <span class="fu">as.numeric</span>(params[<span class="fu">paste0</span>(<span class="st">"cTreatment"</span>,<span class="st">"Remission"</span>)])</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  payoffs</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>payoffs <span class="ot">=</span> <span class="fu">build_payoffs</span>(params_sc)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>payoffs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+      Healthy  Stage1  Stage2   Stage3 Remission Death
+costs       0 1600.00 7200.00 23200.00    500.00     0
+qalys       1    0.88    0.71     0.36      0.95     0
+
+$trtA
+      Healthy  Stage1  Stage2   Stage3 Remission Death
+costs       0 1600.00 7200.00 23200.00  10100.00     0
+qalys       1    0.88    0.71     0.36      0.95     0
+
+$trtB
+      Healthy  Stage1  Stage2   Stage3 Remission Death
+costs       0 1600.00 7200.00 23200.00   7600.00     0
+qalys       1    0.88    0.71     0.36      0.95     0
+
+$trtC
+      Healthy  Stage1  Stage2   Stage3 Remission Death
+costs       0 1600.00 7200.00 23200.00  12600.00     0
+qalys       1    0.88    0.71     0.36      0.95     0</code></pre>
+</div>
+</div>
+</section>
+<section id="step-4-markov-traces" class="level1">
+<h1>Step 4: Markov Traces</h1>
+<p>Over the 30-year simulation, we’d like to know how the individuals transit among the states, with the probability matrix.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>build_traces <span class="ot">=</span> <span class="cf">function</span>(params){</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  m_P <span class="ot">=</span> <span class="fu">build_matrices</span>(params, <span class="st">"p"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  l_m_M <span class="ot">&lt;-</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    m_P <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(<span class="sc">~</span>({</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>      tmp <span class="ot">&lt;-</span> .x[<span class="dv">1</span>,] <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span> <span class="fu">t</span>()</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>      tmp <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>,<span class="at">ncol=</span>(<span class="fu">ncol</span>(tmp)),<span class="at">nrow=</span>(params<span class="sc">$</span>n_cycles<span class="sc">+</span><span class="dv">1</span>),<span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">paste0</span>(<span class="dv">0</span><span class="sc">:</span>params<span class="sc">$</span>n_cycles),<span class="fu">colnames</span>(.x)))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      tmp[<span class="dv">1</span>,<span class="dv">1</span>] <span class="ot">&lt;-</span> params<span class="sc">$</span>nPop</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      tmp</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>params<span class="sc">$</span>n_cycles) {</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map2</span>(l_m_M,m_P,<span class="sc">~</span>({</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        .x[<span class="fu">paste0</span>(t<span class="dv">-1</span>),] <span class="sc">%*%</span> .y</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>      }))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    l_m_M <span class="ot">&lt;-</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">map2</span>(l_m_M,res,<span class="sc">~</span>({</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        .x[<span class="fu">paste0</span>(t),] <span class="ot">&lt;-</span> .y</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        .x</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      }))</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  l_m_M</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>l_m_M <span class="ot">=</span> <span class="fu">build_traces</span>(params_sc)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>l_m_M</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$quo
+   Healthy Stage1 Stage2 Stage3 Remission Death
+0     1000      0      0      0         0   0.0
+1      920     50     20     10         0   0.0
+2      846     80     36     17        16   4.5
+3      779     97     48     22        41  12.2
+4      716    109     57     26        69  22.3
+5      659    116     64     29        97  34.1
+6      606    121     70     31       125  47.1
+7      558    125     74     32       150  60.9
+8      513    128     77     33       174  75.3
+9      472    130     80     33       195  90.0
+10     434    132     82     33       214 104.8
+11     400    133     83     33       231 119.7
+12     368    134     84     33       247 134.7
+13     338    134     85     33       260 149.5
+14     311    134     86     33       271 164.3
+15     286    134     86     32       282 179.0
+16     263    134     87     32       290 193.6
+17     242    134     87     32       298 208.0
+18     223    133     87     31       304 222.2
+19     205    132     87     31       309 236.3
+20     189    132     86     30       313 250.2
+21     174    131     86     30       316 263.9
+22     160    129     85     30       318 277.4
+23     147    128     85     29       320 290.8
+24     135    127     84     29       321 303.9
+25     124    126     83     28       321 316.9
+26     114    124     83     28       321 329.6
+27     105    123     82     27       321 342.2
+28      97    121     81     27       320 354.6
+29      89    120     80     27       318 366.7
+30      82    118     79     26       316 378.7
+
+$trtA
+   Healthy Stage1 Stage2 Stage3 Remission Death
+0     1000      0      0      0         0   0.0
+1      920     50     20     10         0   0.0
+2      846     80     36     17        16   4.5
+3      779     96     47     22        43  12.2
+4      716    105     55     26        75  22.3
+5      659    108     60     29       110  34.1
+6      606    108     63     30       146  46.9
+7      558    107     63     30       181  60.4
+8      513    104     63     30       215  74.0
+9      472    101     62     30       247  87.6
+10     434     97     61     29       278 101.0
+11     400     93     59     28       306 114.1
+12     368     90     57     27       332 126.6
+13     338     86     55     26       356 138.7
+14     311     83     53     25       378 150.3
+15     286     80     52     23       398 161.3
+16     263     77     50     22       416 171.8
+17     242     74     48     21       433 181.9
+18     223     71     46     20       448 191.4
+19     205     69     45     19       461 200.5
+20     189     66     44     18       474 209.2
+21     174     64     42     18       485 217.5
+22     160     62     41     17       495 225.5
+23     147     60     40     16       504 233.1
+24     135     59     39     16       512 240.4
+25     124     57     38     15       519 247.4
+26     114     56     37     14       525 254.1
+27     105     54     36     14       530 260.5
+28      97     53     35     13       535 266.7
+29      89     52     34     13       539 272.7
+30      82     51     34     12       543 278.6
+
+$trtB
+   Healthy Stage1 Stage2 Stage3 Remission Death
+0     1000      0      0      0         0   0.0
+1      920     50     20     10         0   0.0
+2      846     80     36     17        16   4.5
+3      779     97     48     22        42  12.2
+4      716    108     56     26        71  22.3
+5      659    114     62     29       101  34.1
+6      606    119     66     30       131  47.0
+7      558    121     69     31       160  60.7
+8      513    123     71     32       186  74.7
+9      472    124     72     32       211  88.9
+10     434    125     73     31       233 103.1
+11     400    125     74     31       253 117.3
+12     368    125     74     31       271 131.2
+13     338    125     74     30       288 145.0
+14     311    125     74     29       302 158.5
+15     286    125     74     29       315 171.7
+16     263    124     73     28       326 184.8
+17     242    124     73     28       336 197.5
+18     223    123     72     27       344 210.0
+19     205    122     72     27       352 222.3
+20     189    121     71     26       358 234.3
+21     174    121     71     26       363 246.1
+22     160    120     70     25       368 257.6
+23     147    119     70     25       371 269.0
+24     135    118     69     24       374 280.1
+25     124    117     68     24       376 291.0
+26     114    115     68     23       377 301.7
+27     105    114     67     23       378 312.2
+28      97    113     66     23       379 322.6
+29      89    112     65     22       379 332.7
+30      82    111     65     22       378 342.7
+
+$trtC
+   Healthy Stage1 Stage2 Stage3 Remission Death
+0     1000      0      0      0         0   0.0
+1      920     50     20     10         0   0.0
+2      846     80     36     17        16   4.5
+3      779     97     48     22        42  12.2
+4      716    106     56     26        73  22.3
+5      659    111     61     29       106  34.1
+6      606    114     65     30       138  47.0
+7      558    114     67     31       170  60.5
+8      513    114     67     31       200  74.4
+9      472    113     68     31       228  88.3
+10     434    112     67     30       254 102.1
+11     400    111     67     30       278 115.7
+12     368    109     66     29       299 129.0
+13     338    108     65     28       319 142.0
+14     311    106     65     27       336 154.6
+15     286    105     64     26       352 166.9
+16     263    103     63     26       366 178.7
+17     242    102     62     25       379 190.3
+18     223    100     61     24       390 201.5
+19     205     99     60     23       400 212.3
+20     189     98     59     23       409 222.8
+21     174     96     58     22       417 233.1
+22     160     95     58     22       423 243.1
+23     147     94     57     21       429 252.8
+24     135     93     56     20       434 262.2
+25     124     91     55     20       438 271.4
+26     114     90     55     20       441 280.4
+27     105     89     54     19       443 289.2
+28      97     88     53     19       445 297.8
+29      89     87     52     18       447 306.2
+30      82     86     52     18       448 314.4</code></pre>
+</div>
+</div>
+</section>
+<section id="step-5-total-costs-and-qalys" class="level1">
+<h1>Step 5: Total Costs and Qalys</h1>
+<p>With the payoff matrices and Markov traces, we can get the discounted &amp; adjusted costs and QALYs.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Discount weight for costs and effects ----</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>get_ce <span class="ot">=</span> <span class="cf">function</span>(l_m_M, payoffs, params){</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  v_dwc  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> ((<span class="dv">1</span> <span class="sc">+</span> (params<span class="sc">$</span>discount_rate <span class="sc">*</span> params<span class="sc">$</span>cycle_length)) <span class="sc">^</span> (<span class="dv">0</span><span class="sc">:</span>params<span class="sc">$</span>n_cycles))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  v_dwe  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> ((<span class="dv">1</span> <span class="sc">+</span> (params<span class="sc">$</span>discount_rate <span class="sc">*</span> params<span class="sc">$</span>cycle_length)) <span class="sc">^</span> (<span class="dv">0</span><span class="sc">:</span>params<span class="sc">$</span>n_cycles))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Within-cycle correction (WCC) using Simpson's 1/3 rule ----</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Function included in "Functions_markov.R"</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  v_wcc <span class="ot">&lt;-</span> <span class="fu">gen_wcc</span>(<span class="at">n_cycles =</span> params<span class="sc">$</span>n_cycles,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">method =</span> <span class="st">"Simpson1/3"</span>) <span class="co"># vector of wcc</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  v_tot_qaly <span class="ot">&lt;-</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map2</span>(l_m_M, payoffs,<span class="sc">~</span>({</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      v_u_str <span class="ot">&lt;-</span> .y[<span class="st">"qalys"</span>,v_names_states] <span class="sc">%&gt;%</span> <span class="fu">as.vector</span>()</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t</span>(.x[,v_names_states] <span class="sc">%*%</span> v_u_str) <span class="sc">%*%</span> (v_dwe <span class="sc">*</span> v_wcc)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    })) <span class="sc">%&gt;%</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>()</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  v_tot_cost <span class="ot">&lt;-</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map2</span>(l_m_M, payoffs,<span class="sc">~</span>({</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      v_c_str <span class="ot">&lt;-</span> .y[<span class="st">"costs"</span>,v_names_states] <span class="sc">%&gt;%</span> <span class="fu">as.vector</span>()</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t</span>(.x[,v_names_states] <span class="sc">%*%</span> v_c_str) <span class="sc">%*%</span> (v_dwc <span class="sc">*</span> v_wcc)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    })) <span class="sc">%&gt;%</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>()</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  ce<span class="ot">=</span><span class="fu">list</span>()</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  ce[[<span class="st">"discounted_weight_of_cost"</span>]] <span class="ot">=</span> v_dwc</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  ce[[<span class="st">"discounted_weight_of_qaly"</span>]] <span class="ot">=</span> v_dwe</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  ce[[<span class="st">"Within_cycle_correction"</span>]] <span class="ot">=</span> v_dwc</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  ce[[<span class="st">"cost"</span>]] <span class="ot">=</span> v_tot_cost</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  ce[[<span class="st">"qaly"</span>]] <span class="ot">=</span> v_tot_qaly</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  ce</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>tot_ce <span class="ot">=</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> <span class="fu">build_traces</span>(params_sc), <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), <span class="at">params =</span> params_sc)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>tot_ce</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$discounted_weight_of_cost
+ [1] 1.00 0.97 0.94 0.92 0.89 0.86 0.84 0.81 0.79 0.77 0.74 0.72 0.70 0.68 0.66
+[16] 0.64 0.62 0.61 0.59 0.57 0.55 0.54 0.52 0.51 0.49 0.48 0.46 0.45 0.44 0.42
+[31] 0.41
+
+$discounted_weight_of_qaly
+ [1] 1.00 0.97 0.94 0.92 0.89 0.86 0.84 0.81 0.79 0.77 0.74 0.72 0.70 0.68 0.66
+[16] 0.64 0.62 0.61 0.59 0.57 0.55 0.54 0.52 0.51 0.49 0.48 0.46 0.45 0.44 0.42
+[31] 0.41
+
+$Within_cycle_correction
+ [1] 1.00 0.97 0.94 0.92 0.89 0.86 0.84 0.81 0.79 0.77 0.74 0.72 0.70 0.68 0.66
+[16] 0.64 0.62 0.61 0.59 0.57 0.55 0.54 0.52 0.51 0.49 0.48 0.46 0.45 0.44 0.42
+[31] 0.41
+
+$cost
+     quo     trtA     trtB     trtC 
+28610742 77860260 58629019 86249961 
+
+$qaly
+  quo  trtA  trtB  trtC 
+15291 15946 15526 15714 </code></pre>
+</div>
+</div>
+</section>
+<section id="step-6-cea-results-and-icers" class="level1 page-columns page-full">
+<h1>Step 6: CEA results and ICERs</h1>
+<p>As we have got the costs and QALYs for every strategy, we calculate the ICERs for them and compared.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Compare different strategies with icers</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Function also included in "Functions_markov.R"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>calculate_icers <span class="ot">&lt;-</span> <span class="cf">function</span>(cost, effect, strategies) {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># checks on input</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  n_cost <span class="ot">&lt;-</span> <span class="fu">length</span>(cost)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  n_eff <span class="ot">&lt;-</span> <span class="fu">length</span>(effect)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  n_strat <span class="ot">&lt;-</span> <span class="fu">length</span>(strategies)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (n_cost <span class="sc">!=</span> n_eff <span class="sc">|</span> n_eff <span class="sc">!=</span> n_strat) {</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"cost, effect, and strategies must all be vectors of the same length"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># coerce to character, in case they are provided as numeric</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  char_strat <span class="ot">&lt;-</span> <span class="fu">as.character</span>(strategies)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create data frame to hold data</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">"Strategy"</span> <span class="ot">=</span> char_strat,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"Cost"</span> <span class="ot">=</span> cost,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"Effect"</span> <span class="ot">=</span> effect,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  nstrat <span class="ot">&lt;-</span> <span class="fu">nrow</span>(df)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># if only one strategy was provided, return df with NAs for incremental</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (nstrat <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    df[, <span class="fu">c</span>(<span class="st">"ICER"</span>, <span class="st">"Inc_Cost"</span>, <span class="st">"Inc_Effect"</span>)] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># three statuses: dominated, extended dominated, and non-dominated</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># detect dominated strategies</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dominated strategies have a higher cost and lower effect</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(.data<span class="sc">$</span>Cost, <span class="fu">desc</span>(.data<span class="sc">$</span>Effect))</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># iterate over strategies and detect (strongly) dominated strategies</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># those with higher cost and equal or lower effect</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(nstrat <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    ith_effect <span class="ot">&lt;-</span> df[i, <span class="st">"Effect"</span>]</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> (i <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>nstrat) {</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>      jth_effect <span class="ot">&lt;-</span> df[j, <span class="st">"Effect"</span>]</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (jth_effect <span class="sc">&lt;=</span> ith_effect) {</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># append dominated strategies to vector</span></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>        d <span class="ot">&lt;-</span> <span class="fu">c</span>(d, df[j, <span class="st">"Strategy"</span>])</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># detect weakly dominated strategies (extended dominance)</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># this needs to be repeated until there are no more ED strategies</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>  ed <span class="ot">&lt;-</span> <span class="fu">vector</span>()</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>  continue <span class="ot">&lt;-</span> <span class="cn">TRUE</span>  <span class="co"># ensure that the loop is run at least once</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (continue) {</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># vector of all dominated strategies (strong or weak)</span></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>    dom <span class="ot">&lt;-</span> <span class="fu">union</span>(d, ed)</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># strategies declared to be non-dominated at this point</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>    nd <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(strategies, dom)</span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># compute icers for nd strategies</span></span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>    nd_df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>Strategy <span class="sc">%in%</span> nd, ] <span class="sc">%&gt;%</span></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>      <span class="fu">compute_icers</span>()</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># number non-d</span></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>    n_non_d <span class="ot">&lt;-</span> <span class="fu">nrow</span>(nd_df)</span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if only two strategies left, we're done</span></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (n_non_d <span class="sc">&lt;=</span> <span class="dv">2</span>) {</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># strategy identifiers for non-d</span></span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>    nd_strat <span class="ot">&lt;-</span> nd_df<span class="sc">$</span>Strategy</span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>    <span class="co"># now, go through non-d strategies and detect any</span></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># with higher ICER than following strategy</span></span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a>    <span class="do">## keep track of whether any ED strategies are picked up</span></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if not, we're done - exit the loop</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>    new_ed <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(n_non_d <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (nd_df[i, <span class="st">"ICER"</span>] <span class="sc">&gt;</span> nd_df[i <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"ICER"</span>]) {</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>        ed <span class="ot">&lt;-</span> <span class="fu">c</span>(ed, nd_strat[i])</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>        new_ed <span class="ot">&lt;-</span> new_ed <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (new_ed <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>      continue <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>  <span class="co"># recompute icers without weakly dominated strategies</span></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>  nd_df_icers <span class="ot">&lt;-</span> nd_df[<span class="sc">!</span>(nd_df<span class="sc">$</span>Strategy <span class="sc">%in%</span> dom), ] <span class="sc">%&gt;%</span></span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Status =</span> <span class="st">"ND"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">compute_icers</span>()</span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dominated and weakly dominated</span></span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>  d_df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>Strategy <span class="sc">%in%</span> d, ] <span class="sc">%&gt;%</span></span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ICER =</span> <span class="cn">NA</span>, <span class="at">Status =</span> <span class="st">"D"</span>)</span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>  ed_df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>Strategy <span class="sc">%in%</span> ed, ] <span class="sc">%&gt;%</span></span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ICER =</span> <span class="cn">NA</span>, <span class="at">Status =</span> <span class="st">"ED"</span>)</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>  <span class="co"># when combining, sort so we have ref,ND,ED,D</span></span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(d_df, ed_df, nd_df_icers) <span class="sc">%&gt;%</span></span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(.data<span class="sc">$</span>Status), .data<span class="sc">$</span>Cost, <span class="fu">desc</span>(.data<span class="sc">$</span>Effect))</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>  <span class="co"># re-arrange columns</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> results <span class="sc">%&gt;%</span></span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(.data<span class="sc">$</span>Strategy, .data<span class="sc">$</span>Cost, .data<span class="sc">$</span>Effect,</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>           .data<span class="sc">$</span>Inc_Cost, .data<span class="sc">$</span>Inc_Effect, .data<span class="sc">$</span>ICER, .data<span class="sc">$</span>Status)</span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>  <span class="co"># declare class of results</span></span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>(results) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"icers"</span>, <span class="st">"data.frame"</span>)</span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(results)</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>df_cea <span class="ot">&lt;-</span> <span class="fu">calculate_icers</span>(<span class="at">cost       =</span> tot_ce<span class="sc">$</span>cost,</span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a>                          <span class="at">effect     =</span> tot_ce<span class="sc">$</span>qaly,</span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>                          <span class="at">strategies =</span> v_names_str)</span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a>df_cea</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Strategy     Cost Effect Inc_Cost Inc_Effect  ICER Status
+quo       quo 28610742  15291       NA         NA    NA     ND
+trtA     trtA 77860260  15946 49249517        655 75174     ND
+trtB     trtB 58629019  15526       NA         NA    NA     ED
+trtC     trtC 86249961  15714       NA         NA    NA      D</code></pre>
+</div>
+</div>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Status </th>
+   <th style="text-align:left;"> Descriptiion </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> D </td>
+   <td style="text-align:left;"> Dominated </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ND </td>
+   <td style="text-align:left;"> Not Dominated </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ED </td>
+   <td style="text-align:left;"> Extended Dominated </td>
+  </tr>
+</tbody>
+</table>
+
+</div></div></div>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## display a table for CEA outputs</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Function included in "Functions_markov.R"</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>table_cea <span class="ot">&lt;-</span> <span class="fu">format_table_cea</span>(df_cea) </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>table_cea</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Strategy  Costs ($) QALYs Incremental Costs ($) Incremental QALYs
+quo       quo 28,610,742 15291                  &lt;NA&gt;                NA
+trtA     trtA 77,860,260 15946            49,249,517               655
+trtB     trtB 58,629,019 15526                  &lt;NA&gt;                NA
+trtC     trtC 86,249,961 15714                  &lt;NA&gt;                NA
+     ICER ($/QALY) Status
+quo           &lt;NA&gt;     ND
+trtA        75,174     ND
+trtB          &lt;NA&gt;     ED
+trtC          &lt;NA&gt;      D</code></pre>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## CEA frontier -----</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># depends on the `ggplot2`  and `ggrepel` packages.</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Function included in "Functions_markov.R"</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(df_cea, <span class="at">label =</span> <span class="st">"all"</span>, <span class="at">txtsize =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">max</span>(table_cea<span class="sc">$</span>QALYs) <span class="sc">+</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="MarkovDA_files/figure-html/cea-output-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="step-7-one-way-sensitive-analysis" class="level1">
+<h1>Step 7: One-way Sensitive Analysis</h1>
+<p>Use owsa() function in the dampack package to create the one-way sensitive analysis and tornado plot.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set lower &amp; upper case for cTrtA</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># params_lower = params_upper  = params_sc</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># params_lower$cTrtA = 8000</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># params_upper$cTrtA = 10500</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># result8000 = calculate_icers(cost       = get_ce(params_lower)$cost,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#                 effect     = get_ce(params_lower)$qaly,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                 strategies = v_names_str)</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># result10500 = calculate_icers(cost       = get_ce(params_upper)$cost,</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#                 effect     = get_ce(params_upper)$qaly,</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#                 strategies = v_names_str)</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># # set lower &amp; upper case for pStage3Death</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># params_lower = params_upper  = params_sc</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co"># params_lower$pStage3Death = 0.44</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co"># params_upper$pStage3Death = 0.5</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate_icers(cost       = get_ce(params_lower)$cost,</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="co">#                 effect     = get_ce(params_lower)$qaly,</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">#                 strategies = v_names_str)</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate_icers(cost       = get_ce(params_upper)$cost,</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="co">#                 effect     = get_ce(params_upper)$qaly,</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="co">#                 strategies = v_names_str)</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a><span class="co">#dampack_dsa</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>simulate_strategies <span class="ot">=</span> <span class="cf">function</span>(params, <span class="at">wtp =</span> params_sc<span class="sc">$</span>wtp) {</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create cost-effectiveness results data frame</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LY is the total dicounted life-years, here will not use. </span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>  df_ce <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Strategy =</span> v_names_str,</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Cost =</span> <span class="fu">numeric</span>(n_strategies),</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>                      <span class="at">QALY =</span> <span class="fu">numeric</span>(n_strategies),</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>                      <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">=</span> <span class="fu">calculate_icers</span>(<span class="at">cost =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> <span class="fu">build_traces</span>(params), <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params), params)<span class="sc">$</span>cost,</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>                           <span class="at">effect =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> <span class="fu">build_traces</span>(params), <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params), params)<span class="sc">$</span>qaly,</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> v_names_str)</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>  df_ce[<span class="fu">c</span>(<span class="st">"Cost"</span>, <span class="st">"QALY"</span>,<span class="st">"ICER"</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(result<span class="sc">$</span>Cost,</span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>                                result<span class="sc">$</span>Effect,</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a>                                result<span class="sc">$</span>ICER)</span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a>  df_ce[<span class="st">"NMB"</span>] <span class="ot">&lt;-</span> result<span class="sc">$</span>Effect <span class="sc">*</span> wtp <span class="sc">-</span> result<span class="sc">$</span>Cost</span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df_ce)</span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a>my_owsa_params_range <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">pars =</span> <span class="fu">c</span>(<span class="st">"cTrtA"</span>, <span class="st">"pStage3Death"</span>),</span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">min =</span> <span class="fu">c</span>(<span class="dv">8000</span>, <span class="fl">0.3</span>),</span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">max =</span> <span class="fu">c</span>(<span class="dv">10500</span>, <span class="fl">0.9</span>))</span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>l_owsa_det <span class="ot">=</span> <span class="fu">run_owsa_det</span>(<span class="at">params_range =</span> my_owsa_params_range,</span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>                           <span class="at">params_basecase =</span> params_sc,</span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>                           <span class="at">nsamp =</span> <span class="dv">2</span>,</span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>                           <span class="at">FUN =</span> simulate_strategies,</span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>                           <span class="at">outcomes =</span> <span class="fu">c</span>(<span class="st">"Cost"</span>, <span class="st">"QALY"</span>, <span class="st">"ICER"</span>, <span class="st">"NMB"</span>),</span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> v_names_str,</span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>owsaNMBtrtA <span class="ot">=</span> l_owsa_det<span class="sc">$</span>owsa_NMB[l_owsa_det<span class="sc">$</span>owsa_NMB[,<span class="st">"strategy"</span>] <span class="sc">==</span> <span class="st">"trtA"</span>,]</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a>owsaICERtrtA <span class="ot">=</span> l_owsa_det<span class="sc">$</span>owsa_ICER[l_owsa_det<span class="sc">$</span>owsa_ICER[,<span class="st">"strategy"</span>] <span class="sc">==</span> <span class="st">"trtA"</span>,]</span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a><span class="fu">owsa_tornado</span>(owsaNMBtrtA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="MarkovDA_files/figure-html/owdsa-1.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">owsa_tornado</span>(owsaICERtrtA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="MarkovDA_files/figure-html/owdsa-2.png" class="img-fluid" width="672"></p>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # Select the net monetary benefit (NMB) owsa object</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># my_owsa_NMB &lt;- l_owsa_det$owsa_NMB</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Plot outcome of each strategy over each parameter range</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot(my_owsa_NMB,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#      n_x_ticks = 4)</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># owsa_tornado(l_owsa_det$owsa_NMB)</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># owsa_opt_strat(l_owsa_det$owsa_NMB)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,32 @@
+project:
+  type: website
+  output-dir: docs
+  resources:
+    - "*.doc"
+    - "*.xlsx"
+    - "*.xlsm"
+    - "*.xls"
+
+website:
+  title: "Lab in R codes"
+  sidebar:
+    style: "floating"
+    search: false
+    collapse-level: 1
+    contents:
+      - text: "Basic Markov Model"
+        href: MarkovDA.qmd
+      - text: "Advanced Markov Model"
+        href: AddingMortality.qmd
+
+execute:
+  freeze: auto  # re-render only when source changes
+
+format:
+  html:
+    theme: flatly
+    css: styles.css
+    toc: true
+
+editor: visual
+

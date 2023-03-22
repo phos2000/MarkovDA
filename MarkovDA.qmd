@@ -1,0 +1,609 @@
+---
+title: "How to Create Markov Model using R"
+author: "Astrid Yu, Ashley Leech"
+date: "2023-03-01"
+format: 
+  html: 
+    toc: true
+    code-fold: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DiagrammeR)
+library(here)
+library(glue)
+library(Matrix)
+library(expm)
+library(ggrepel)    # For plotting
+library(ellipse)    # For plotting
+library(scales)     # For dollar signs and commas
+library(randtoolbox)
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(progress)
+library(hrbrthemes)
+library(ggsci)
+library(directlabels)
+library(dampack)
+library(tinytex)
+source(here('exercise/functions_markov.r'))
+```
+
+# Markov In-Class Exercise
+
+We are tasked to examine the economic value of new treatments for a rare type of cancer. The new treatments were designed to increase the health of patients in remission & to prevent them from relapsing back to either Stage 1 or Stage 2.
+
+![](exercise/markov_diagram.png)
+
+Before the new drugs development, the transition probabilities were the following:
+
+| Description                                                             | Probability |
+|-------------------------------------------------------------------------|-------------|
+| Probability of transition from Healthy to Stage 1                       | 5%          |
+| Probability of transition from Healthy to Stage 2                       | 2%          |
+| Probability of transition from Healthy to Stage 3                       | 1%          |
+| Probability of transition from Stage 1 to Stage 2                       | 10%         |
+| Probability of transition from Stage 1 to Remission                     | 25%         |
+| Probability of transition from Stage 2 to Stage 1                       | 5%          |
+| Probability of transition from Stage 2 to Stage 3                       | 15%         |
+| Probability of transition from Stage 2 to Remission                     | 20%         |
+| Probability of transition from Stage 3 to Stage 2                       | 5%          |
+| Probability of transition from Stage 3 to Death                         | 45%         |
+| Probability of transition from Remission to Stage 1                     | 10%         |
+| Probability of transition from Remission to Stage 2                     | 5%          |
+| Probability of transition from Remission to Stage 1 when on Treatment A | 10%         |
+| Probability of transition from Remission to Stage 2 when on Treatment A | 5%          |
+| Probability of transition from Remission to Stage 1 when on Treatment B | 8%          |
+| Probability of transition from Remission to Stage 2 when on Treatment B | 3%          |
+| Probability of transition from Remission to Stage 1 when on Treatment C | 5%          |
+| Probability of transition from Remission to Stage 2 when on Treatment C | 2%          |
+
+Each health state is associated with the following utilities:
+
+| Description                    | Utility |
+|--------------------------------|---------|
+| Utility of Healthy per cycle   | 1       |
+| Utility of Stage 1 per cycle   | 0.88    |
+| Utility of Stage 2 per cycle   | 0.71    |
+| Utility of Stage 3 per cycle   | 0.36    |
+| Utility of Remission per cycle | 0.95    |
+
+Patients in certain health states have to take medications and visit their treating physician on a regular basis:
+
+| Description                                | Costs / Other |
+|--------------------------------------------|---------------|
+| Number of visits per cycle in Stage 1      | 4             |
+| Number of visits per cycle in Stage 2      | 12            |
+| Number of visits per cycle in Stage 3      | 52            |
+| Number of visits per cycle in Remission    | 1             |
+| Cost of a visit                            | \$ 100        |
+| Cost of treatment per cycle in Stage 1     | \$ 1,200      |
+| Cost of treatment per cycle in Stage 2     | \$ 6,000      |
+| Cost of treatment per cycle in Stage 3     | \$ 18,000     |
+| Cost of status quo per cycle in Remission  | \$ 400        |
+| Cost of Treatment A per cycle in Remission | \$ 10,000     |
+| Cost of Treatment B per cycle in Remission | \$ 7,500      |
+| Cost of Treatment C per cycle in Remission | \$ 12,500     |
+
+Assume an annual discount rate of 3% and a 30-year time horizon.
+
+::: callout-note
+**What You Need to Prepare:**
+
+1.  the Exercise excel file: we have the initial values for all the parameters and the procedures displayed in the excel formula.
+2.  the Function R file: it includes some advanced and long functions for the process. Lots of the functions are included in the *dampack* R package.
+3.  R Studio or R. -- I highly recommende you to use R Studio
+:::
+
+# Step 1: Parameterize the Model
+
+Here we use the excel to upload all the parameters provided in the excel.
+
+Another ways is to define the parameters directly in the R.
+
+We get a list of parameters named *param_sc*.
+
+```{r}
+#| column: margin
+#| echo: false
+#| 
+knitr::kable(
+  dplyr::tibble(
+    type = c("Probability","Rate","Matrix","Cost","Utility","Hazard Ratio"),
+    prefix = c("p_","r_","m_","c_","u_","hr_")
+  )
+)
+```
+
+```{r input-excel}
+input_file = normalizePath(here("exercise/markov_exercise.xlsx"))
+input_raw = readxl::read_xlsx(input_file,sheet="Parameters")[,1:7]
+params_sc = input_raw %>% 
+  select(`Variable name`, Value) %>%
+  na.omit() %>%
+  deframe() %>%
+  as.list()
+# list2env(params_sc, envir=.GlobalEnv)
+
+v_names_states = str_sub(names(as_tibble(params_sc) %>% select(starts_with("u"))), 2, -1)
+v_n_states <- length(v_names_states)
+v_names_str = c("quo", str_c("t",str_sub(names(as_tibble(params_sc) %>% select(starts_with("cTrt"))), 3, -1)))
+n_strategies <- length(v_names_str)
+
+options("scipen"=1000, "digits"=2)
+
+t(as_tibble(params_sc)) %>%
+  kable(caption = "input params from excel") %>%
+  kable_styling() %>%
+  scroll_box(height = "400px")
+```
+
+# Step 2: Matrices
+
+With all the probabilities for transitions among all the stages, we'd like to build a transition probability matrix which would contribute to building Markov model traces later.
+
+However, we might not have all the probabilities at the beginning. We also mention how to change rates into probabilities here.
+
+## If All Probabilities Known (No Rate-to-Probabilities Transitions)
+
+```{r build-prob-matrix}
+build_matrices <- function(params, mtype) {
+  m_X = list()
+  for (m in v_names_str){
+    m_X_ = matrix(0, nrow = v_n_states, ncol = v_n_states, dimnames = list(v_names_states,v_names_states))
+    for (i in rownames(m_X_)) {
+      for (j in colnames(m_X_)) {
+        if (paste0(mtype,i,j) %in% names(params)) {
+          m_X_[i,j] = as.numeric(params[paste0(mtype,i,j)])
+        }
+      }
+    }
+    
+    if (mtype == "p") {
+      ## if drawing the probabilities from the given parameters and building a probability matrix
+      
+      if (paste0("pRemissionStage1_",m) %in% names(params)) {
+        ## the relapse probs change over the strategies. A special rule here. 
+        m_X_["Remission","Stage1"] = as.numeric(params[paste0("pRemissionStage1_",m)])
+        m_X_["Remission","Stage2"] = as.numeric(params[paste0("pRemissionStage2_",m)])
+      }
+        
+      for (n in 1:v_n_states) {
+        m_X_[n,n] = 1-sum(m_X_[n,])
+      }
+    } else {
+      ## if drawing the rates from the given paramters and building a rate matrix
+      
+      if (paste0("hrRemissionStage1_",m) %in% names(params)) {
+        ## use the hazard ratios to adjust the relapse rates over the strategies. 
+        m_X_["Remission","Stage1"] = m_X_["Remission","Stage1"] * as.numeric(params[paste0("hrRemissionStage1_",m)])
+        m_X_["Remission","Stage2"] = m_X_["Remission","Stage2"] * as.numeric(params[paste0("hrRemissionStage2_",m)])
+      }
+        
+      for (n in 1:v_n_states) {
+        m_X_[n,n] = -sum(m_X_[n,])
+      }
+    }
+    m_X[[m]] = m_X_
+  }
+  m_X
+}
+    
+m_P = build_matrices(params_sc, "p")
+
+m_P
+```
+
+If having a rate matrix instead of all the probabilities, there are two ways to convert it to a probability matrix.
+
+## Rate-to-Probability Conversion Formulas
+
+$$
+p_{HealthyStage1}= \frac{r_{HealthyStage1}}{r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3}}\big ( 1 - e^{-(r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3})\Delta t}\big )
+$$
+
+$$
+p_{HealthyHealthy} = e^{-(r_{HealthyStage1}+r_{HealthyStage2}+r_{HealthyStage3})\Delta t}
+$$
+
+In the above formulas, `r_*` is a transition rate and $\Delta t$ is the timestep, which in the Excel document is set to a value of 1 and stored in the variable `n_cycle_length`.
+
+```{r formula}
+m_P_form = list()
+m_P_ = matrix(0, nrow = v_n_states, ncol = v_n_states, dimnames = list(v_names_states,v_names_states))
+
+for (i in v_names_states) {
+  tempsum = sum(as_tibble(params_sc) %>% select(starts_with(paste0("r",i))))
+  for (j in v_names_states) {
+    if (paste0("r",i,j) %in% names(params_sc)) {
+      ptemp = params_sc[[paste0("r",i,j)]] * (1 - exp(-tempsum)) / tempsum
+    } else if (j == i) {
+      ptemp = exp(-tempsum)
+    } else {
+      ptemp = 0
+    }
+    m_P_[i,j] = ptemp
+  }
+}
+m_P_form[[v_names_str[1]]] = m_P_
+
+for (str in v_names_str[2:4]) {
+  params_sc[[paste0("rRemissionStage1_",str)]] = params_sc$rRemissionStage1 * params_sc[[paste0("hrRemissionStage1_",str)]]
+  params_sc[[paste0("rRemissionStage2_",str)]] = params_sc$rRemissionStage2 * params_sc[[paste0("hrRemissionStage2_",str)]]
+  m_P_form[[str]] = m_P_
+  tempsum = params_sc[[paste0("rRemissionStage1_",str)]] + params_sc[[paste0("rRemissionStage2_",str)]]
+  m_P_form[[str]]["Remission", "Stage1"] = params_sc[[paste0("rRemissionStage1_",str)]] * (1 - exp(-tempsum)) / tempsum
+  m_P_form[[str]]["Remission", "Stage2"] = params_sc[[paste0("rRemissionStage2_",str)]] * (1 - exp(-tempsum)) / tempsum
+  m_P_form[[str]]["Remission", "Remission"] = exp(-tempsum)
+}
+
+m_P_form
+```
+
+## Rate-to-Probability Matrix Exponentiation
+
+Instead of converting the rates one-by-one, matrix exponentiation is a quicker way to convert all.
+
+Considering the covariance of the rates here, it is also more accurate.
+
+However, if we have both rates and probabilities mixed, there will be two steps:
+
+1.  convert all the probabilities to rates using the conversion formula;
+
+2.  use the matrix exponentiation to convert the rate matrix to the probability matrix.
+
+```{r expm}
+m_R = build_matrices(params_sc, "r")
+m_P_expm = list()
+for (m in v_names_str){
+  m_P_expm[[m]] = expm(m_R[[m]])
+}
+m_P_expm
+```
+
+# Step 3: Payoffs
+
+Here we also try to build a matrix of payoffs which helps calculating the costs and QALYs for the traces.
+
+```{r payoffs}
+build_payoffs = function(params){
+  payoffs = list()
+  cost_basic = c()
+  cost_basic["Healthy"] = 0
+  for (i in v_names_states[2:(v_n_states-1)]) {
+    cost_basic[i] = as.numeric(params[paste0("cTreatment",i)]) + as.numeric(params[paste0("nVisits",i)]) * params$cVisit
+  }
+  cost_basic["Death"] = 0
+
+  payoffs[["quo"]] = matrix(c(cost_basic, as_vector(as_tibble(params) %>% select(starts_with("u")))),
+                      nrow = 2, ncol = 6, byrow = TRUE, dimnames = list(c("costs", "qalys"), v_names_states))
+  for (m in v_names_str[2:n_strategies]) {
+    payoffs[[m]] = payoffs[["quo"]]
+    payoffs[[m]]["costs","Remission"] = payoffs[[m]]["costs","Remission"] + as.numeric(params[paste0("cT",str_sub(m,2,-1))]) - as.numeric(params[paste0("cTreatment","Remission")])
+  }
+  payoffs
+}
+
+payoffs = build_payoffs(params_sc)
+payoffs
+```
+
+# Step 4: Markov Traces
+
+Over the 30-year simulation, we'd like to know how the individuals transit among the states, with the probability matrix.
+
+```{r trace}
+build_traces = function(params){
+  m_P = build_matrices(params, "p")
+  
+  l_m_M <-
+    m_P %>%
+    map(~({
+      tmp <- .x[1,] %>% as.matrix() %>% t()
+      tmp <- matrix(0,ncol=(ncol(tmp)),nrow=(params$n_cycles+1),dimnames = list(paste0(0:params$n_cycles),colnames(.x)))
+      tmp[1,1] <- params$nPop
+      tmp
+    }))
+
+  for (t in 1:params$n_cycles) {
+    res <-
+      map2(l_m_M,m_P,~({
+        .x[paste0(t-1),] %*% .y
+      }))
+    l_m_M <-
+      map2(l_m_M,res,~({
+        .x[paste0(t),] <- .y
+        .x
+      }))
+  }
+  l_m_M
+}
+
+l_m_M = build_traces(params_sc)
+l_m_M
+```
+
+# Step 5: Total Costs and Qalys
+
+With the payoff matrices and Markov traces, we can get the discounted & adjusted costs and QALYs.
+
+```{r discount}
+### Discount weight for costs and effects ----
+
+get_ce = function(l_m_M, payoffs, params){
+  v_dwc  <- 1 / ((1 + (params$discount_rate * params$cycle_length)) ^ (0:params$n_cycles))
+  v_dwe  <- 1 / ((1 + (params$discount_rate * params$cycle_length)) ^ (0:params$n_cycles))
+  ## Within-cycle correction (WCC) using Simpson's 1/3 rule ----
+  # Function included in "Functions_markov.R"
+  v_wcc <- gen_wcc(n_cycles = params$n_cycles,
+                 method = "Simpson1/3") # vector of wcc
+  
+  v_tot_qaly <-
+    map2(l_m_M, payoffs,~({
+      v_u_str <- .y["qalys",v_names_states] %>% as.vector()
+      t(.x[,v_names_states] %*% v_u_str) %*% (v_dwe * v_wcc)
+    })) %>%
+    unlist()
+
+  v_tot_cost <-
+    map2(l_m_M, payoffs,~({
+      v_c_str <- .y["costs",v_names_states] %>% as.vector()
+      t(.x[,v_names_states] %*% v_c_str) %*% (v_dwc * v_wcc)
+    })) %>%
+    unlist()
+  
+  ce=list()
+  ce[["discounted_weight_of_cost"]] = v_dwc
+  ce[["discounted_weight_of_qaly"]] = v_dwe
+  ce[["Within_cycle_correction"]] = v_dwc
+  ce[["cost"]] = v_tot_cost
+  ce[["qaly"]] = v_tot_qaly
+  
+  ce
+}
+
+tot_ce = get_ce(l_m_M = build_traces(params_sc), payoffs = build_payoffs(params_sc), params = params_sc)
+tot_ce
+```
+
+# Step 6: CEA results and ICERs
+
+As we have got the costs and QALYs for every strategy, we calculate the ICERs for them and compared.
+
+```{r cea}
+## Compare different strategies with icers
+# Function also included in "Functions_markov.R"
+calculate_icers <- function(cost, effect, strategies) {
+  # checks on input
+  n_cost <- length(cost)
+  n_eff <- length(effect)
+  n_strat <- length(strategies)
+  if (n_cost != n_eff | n_eff != n_strat) {
+    stop("cost, effect, and strategies must all be vectors of the same length", call. = FALSE)
+  }
+
+  # coerce to character, in case they are provided as numeric
+  char_strat <- as.character(strategies)
+
+  # create data frame to hold data
+  df <- data.frame("Strategy" = char_strat,
+                   "Cost" = cost,
+                   "Effect" = effect,
+                   stringsAsFactors = FALSE)
+  nstrat <- nrow(df)
+
+  # if only one strategy was provided, return df with NAs for incremental
+  if (nstrat == 1) {
+    df[, c("ICER", "Inc_Cost", "Inc_Effect")] <- NA
+    return(df)
+  }
+
+  # three statuses: dominated, extended dominated, and non-dominated
+  d <- NULL
+
+  # detect dominated strategies
+  # dominated strategies have a higher cost and lower effect
+  df <- df %>%
+    arrange(.data$Cost, desc(.data$Effect))
+
+  # iterate over strategies and detect (strongly) dominated strategies
+  # those with higher cost and equal or lower effect
+  for (i in 1:(nstrat - 1)) {
+    ith_effect <- df[i, "Effect"]
+    for (j in (i + 1):nstrat) {
+      jth_effect <- df[j, "Effect"]
+      if (jth_effect <= ith_effect) {
+        # append dominated strategies to vector
+        d <- c(d, df[j, "Strategy"])
+      }
+    }
+  }
+
+  # detect weakly dominated strategies (extended dominance)
+  # this needs to be repeated until there are no more ED strategies
+  ed <- vector()
+  continue <- TRUE  # ensure that the loop is run at least once
+  while (continue) {
+    # vector of all dominated strategies (strong or weak)
+    dom <- union(d, ed)
+
+    # strategies declared to be non-dominated at this point
+    nd <- setdiff(strategies, dom)
+
+    # compute icers for nd strategies
+    nd_df <- df[df$Strategy %in% nd, ] %>%
+      compute_icers()
+
+    # number non-d
+    n_non_d <- nrow(nd_df)
+
+    # if only two strategies left, we're done
+    if (n_non_d <= 2) {
+      break
+    }
+
+    # strategy identifiers for non-d
+    nd_strat <- nd_df$Strategy
+
+    # now, go through non-d strategies and detect any
+    # with higher ICER than following strategy
+    ## keep track of whether any ED strategies are picked up
+    # if not, we're done - exit the loop
+    new_ed <- 0
+    for (i in 2:(n_non_d - 1)) {
+      if (nd_df[i, "ICER"] > nd_df[i + 1, "ICER"]) {
+        ed <- c(ed, nd_strat[i])
+        new_ed <- new_ed + 1
+      }
+    }
+    if (new_ed == 0) {
+      continue <- FALSE
+    }
+  }
+
+  # recompute icers without weakly dominated strategies
+  nd_df_icers <- nd_df[!(nd_df$Strategy %in% dom), ] %>%
+    mutate(Status = "ND") %>%
+    compute_icers()
+
+  # dominated and weakly dominated
+  d_df <- df[df$Strategy %in% d, ] %>%
+    mutate(ICER = NA, Status = "D")
+
+  ed_df <- df[df$Strategy %in% ed, ] %>%
+    mutate(ICER = NA, Status = "ED")
+
+  # when combining, sort so we have ref,ND,ED,D
+  results <- bind_rows(d_df, ed_df, nd_df_icers) %>%
+    arrange(desc(.data$Status), .data$Cost, desc(.data$Effect))
+
+  # re-arrange columns
+  results <- results %>%
+    select(.data$Strategy, .data$Cost, .data$Effect,
+           .data$Inc_Cost, .data$Inc_Effect, .data$ICER, .data$Status)
+
+  # declare class of results
+  class(results) <- c("icers", "data.frame")
+  return(results)
+}
+
+df_cea <- calculate_icers(cost       = tot_ce$cost,
+                          effect     = tot_ce$qaly,
+                          strategies = v_names_str)
+df_cea
+```
+
+```{r comments}
+#| column: margin
+#| echo: false
+#| 
+knitr::kable(
+  dplyr::tibble(
+    Status = c("D","ND","ED"),
+    Descriptiion = c("Dominated","Not Dominated","Extended Dominated")
+  )
+)
+```
+
+```{r cea-output}
+## display a table for CEA outputs
+# Function included in "Functions_markov.R"
+table_cea <- format_table_cea(df_cea) 
+table_cea
+
+## CEA frontier -----
+# depends on the `ggplot2`  and `ggrepel` packages.
+# Function included in "Functions_markov.R"
+plot(df_cea, label = "all", txtsize = 16) +
+  expand_limits(x = max(table_cea$QALYs) + 0.1) +
+  theme(legend.position = c(0.8, 0.2))
+```
+
+# Step 7: One-way Sensitive Analysis
+
+Use owsa() function in the dampack package to create the one-way sensitive analysis and tornado plot.
+
+```{r owdsa}
+# set lower & upper case for cTrtA
+# params_lower = params_upper  = params_sc
+# params_lower$cTrtA = 8000
+# params_upper$cTrtA = 10500
+# 
+# result8000 = calculate_icers(cost       = get_ce(params_lower)$cost,
+#                 effect     = get_ce(params_lower)$qaly,
+#                 strategies = v_names_str)
+# 
+# result10500 = calculate_icers(cost       = get_ce(params_upper)$cost,
+#                 effect     = get_ce(params_upper)$qaly,
+#                 strategies = v_names_str)
+# 
+# # set lower & upper case for pStage3Death
+# params_lower = params_upper  = params_sc
+# params_lower$pStage3Death = 0.44
+# params_upper$pStage3Death = 0.5
+# 
+# calculate_icers(cost       = get_ce(params_lower)$cost,
+#                 effect     = get_ce(params_lower)$qaly,
+#                 strategies = v_names_str)
+# 
+# calculate_icers(cost       = get_ce(params_upper)$cost,
+#                 effect     = get_ce(params_upper)$qaly,
+#                 strategies = v_names_str)
+
+
+#dampack_dsa
+
+simulate_strategies = function(params, wtp = params_sc$wtp) {
+  # Create cost-effectiveness results data frame
+  # LY is the total dicounted life-years, here will not use. 
+  df_ce <- data.frame(Strategy = v_names_str,
+                      Cost = numeric(n_strategies),
+                      QALY = numeric(n_strategies),
+                      stringsAsFactors = FALSE)
+
+  result = calculate_icers(cost = get_ce(l_m_M = build_traces(params), payoffs = build_payoffs(params), params)$cost,
+                           effect = get_ce(l_m_M = build_traces(params), payoffs = build_payoffs(params), params)$qaly,
+                           strategies = v_names_str)
+  
+  df_ce[c("Cost", "QALY","ICER")] <- c(result$Cost,
+                                result$Effect,
+                                result$ICER)
+  df_ce["NMB"] <- result$Effect * wtp - result$Cost
+  
+  return(df_ce)
+}
+
+my_owsa_params_range <- data.frame(pars = c("cTrtA", "pStage3Death"),
+                                   min = c(8000, 0.3),
+                                   max = c(10500, 0.9))
+
+l_owsa_det = run_owsa_det(params_range = my_owsa_params_range,
+                           params_basecase = params_sc,
+                           nsamp = 2,
+                           FUN = simulate_strategies,
+                           outcomes = c("Cost", "QALY", "ICER", "NMB"),
+                           strategies = v_names_str,
+                           progress = FALSE)
+
+owsaNMBtrtA = l_owsa_det$owsa_NMB[l_owsa_det$owsa_NMB[,"strategy"] == "trtA",]
+owsaICERtrtA = l_owsa_det$owsa_ICER[l_owsa_det$owsa_ICER[,"strategy"] == "trtA",]
+owsa_tornado(owsaNMBtrtA)
+owsa_tornado(owsaICERtrtA)
+
+# # Select the net monetary benefit (NMB) owsa object
+# my_owsa_NMB <- l_owsa_det$owsa_NMB
+# 
+# # Plot outcome of each strategy over each parameter range
+# plot(my_owsa_NMB,
+#      n_x_ticks = 4)
+# 
+# owsa_tornado(l_owsa_det$owsa_NMB)
+# 
+# owsa_opt_strat(l_owsa_det$owsa_NMB)
+```
