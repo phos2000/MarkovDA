@@ -170,10 +170,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <ul class="collapse">
   <li><a href="#where-to-get-the-us-life-table" id="toc-where-to-get-the-us-life-table" class="nav-link" data-scroll-target="#where-to-get-the-us-life-table">Where to get the US life table</a></li>
   <li><a href="#where-to-get-the-specific-cause-death" id="toc-where-to-get-the-specific-cause-death" class="nav-link" data-scroll-target="#where-to-get-the-specific-cause-death">Where to get the specific-cause death</a></li>
-  <li><a href="#how-to-calculate-the-cause-deleted-life-table" id="toc-how-to-calculate-the-cause-deleted-life-table" class="nav-link" data-scroll-target="#how-to-calculate-the-cause-deleted-life-table">How to calculate the cause-deleted life table</a></li>
+  <li><a href="#how-to-build-the-cause-deleted-life-table" id="toc-how-to-build-the-cause-deleted-life-table" class="nav-link" data-scroll-target="#how-to-build-the-cause-deleted-life-table">How to build the cause-deleted life table</a></li>
   </ul></li>
-  <li><a href="#build-a-loop-to-process-markov-model-background-mortality" id="toc-build-a-loop-to-process-markov-model-background-mortality" class="nav-link" data-scroll-target="#build-a-loop-to-process-markov-model-background-mortality">Build a loop to process Markov Model &amp; Background Mortality</a></li>
-  <li><a href="#icer-re-calculation" id="toc-icer-re-calculation" class="nav-link" data-scroll-target="#icer-re-calculation">ICER re-calculation</a></li>
+  <li><a href="#build-a-loop-to-process-markov-traces-with-background-mortality" id="toc-build-a-loop-to-process-markov-traces-with-background-mortality" class="nav-link" data-scroll-target="#build-a-loop-to-process-markov-traces-with-background-mortality">Build a Loop to Process Markov Traces with Background Mortality</a></li>
+  <li><a href="#icer-re-calculation" id="toc-icer-re-calculation" class="nav-link" data-scroll-target="#icer-re-calculation">ICER Re-Calculation</a></li>
   </ul>
 </nav>
     </div>
@@ -272,15 +272,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="where-to-get-the-specific-cause-death" class="level2">
 <h2 class="anchored" data-anchor-id="where-to-get-the-specific-cause-death">Where to get the specific-cause death</h2>
-<p>Here we set all our patients are initially 45-yr men with the prostate cancer.</p>
+<p>Here we set all our patients are initially <strong>45-yr men with the prostate cancer</strong>.</p>
 <p><a href="https://vizhub.healthdata.org/gbd-results/" class="uri">https://vizhub.healthdata.org/gbd-results/</a>[GBD query tool]</p>
 <p>GBD results provide the % of deaths due to a specific cause by age (every 5 years) and sex groups.</p>
 <p>Using filters like:</p>
 <p><img src="exercise/prostate-cancer-cause-death.png" class="img-fluid"></p>
 <p><img src="exercise/GBD-download-request.png" class="img-fluid"></p>
 </section>
-<section id="how-to-calculate-the-cause-deleted-life-table" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-calculate-the-cause-deleted-life-table">How to calculate the cause-deleted life table</h2>
+<section id="how-to-build-the-cause-deleted-life-table" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-build-the-cause-deleted-life-table">How to build the cause-deleted life table</h2>
+<p>The GBD result of death caused by prostate cancer is divided by age groups, which we need to expand to match the original life table.</p>
+<p>non-Cause death = all the death * (1 - percent_of_caused_death)</p>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
@@ -346,13 +348,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </section>
 </section>
-<section id="build-a-loop-to-process-markov-model-background-mortality" class="level1">
-<h1>Build a loop to process Markov Model &amp; Background Mortality</h1>
+<section id="build-a-loop-to-process-markov-traces-with-background-mortality" class="level1">
+<h1>Build a Loop to Process Markov Traces with Background Mortality</h1>
+<p>Before we have build the Markov traces without considering background mortality.</p>
+<p>Here we will build new Markov traces with one more column – number of death caused by pure background mortality.</p>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># here use the cause-deleted life table</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_M_phd <span class="ot">=</span> death_background <span class="ot">=</span> death_cancer <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_M_wBG <span class="ot">=</span> death_background <span class="ot">=</span> death_cancer <span class="ot">=</span> <span class="fu">list</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># setting</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>start_age <span class="ot">=</span> <span class="dv">45</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -361,192 +365,207 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  death_cancer[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  death_background[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> params_sc<span class="sc">$</span>n_cycles<span class="sc">+</span><span class="dv">1</span>, <span class="at">ncol =</span> v_n_states, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, v_names_states))</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]][<span class="dv">1</span>,] <span class="ot">=</span> <span class="fu">c</span>(params_sc<span class="sc">$</span>nPop, <span class="fu">rep</span>(<span class="dv">0</span>,<span class="at">times=</span><span class="dv">5</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  m_M_wBG[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> params_sc<span class="sc">$</span>n_cycles<span class="sc">+</span><span class="dv">1</span>, <span class="at">ncol =</span> v_n_states, <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">0</span><span class="sc">:</span>(params_sc<span class="sc">$</span>n_cycles), v_names_states))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  m_M_wBG[[v_names_str[i]]][<span class="dv">1</span>,] <span class="ot">=</span> <span class="fu">c</span>(params_sc<span class="sc">$</span>nPop, <span class="fu">rep</span>(<span class="dv">0</span>,<span class="at">times=</span><span class="dv">5</span>))</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (cycle <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>params_sc<span class="sc">$</span>n_cycles) {</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    m_M_phd[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,] <span class="ot">=</span> m_M_phd[[v_names_str[i]]][cycle,] <span class="sc">%*%</span> m_P[[v_names_str[i]]] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>())</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    m_M_wBG[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,] <span class="ot">=</span> m_M_wBG[[v_names_str[i]]][cycle,] <span class="sc">%*%</span> m_P[[v_names_str[i]]] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>())</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">sum</span>(m_M_phd[[v_names_str[i]]][cycle,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">*</span> (mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>()) <span class="sc">+</span> death_background[[v_names_str[i]]][cycle]</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">sum</span>(m_M_wBG[[v_names_str[i]]][cycle,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">*</span> (mlt2020_nonCause[(cycle <span class="sc">+</span> start_age),<span class="st">"qx"</span>] <span class="sc">%&gt;%</span> <span class="fu">pull</span>()) <span class="sc">+</span> death_background[[v_names_str[i]]][cycle]</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    death_cancer[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">round</span>(params_sc<span class="sc">$</span>nPop <span class="sc">-</span> <span class="fu">sum</span>(m_M_phd[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">-</span> death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>],<span class="dv">2</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    death_cancer[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>] <span class="ot">=</span> <span class="fu">round</span>(params_sc<span class="sc">$</span>nPop <span class="sc">-</span> <span class="fu">sum</span>(m_M_wBG[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) <span class="sc">-</span> death_background[[v_names_str[i]]][cycle<span class="sc">+</span><span class="dv">1</span>],<span class="dv">2</span>)</span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  m_M_phd[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">cbind</span>(m_M_phd[[v_names_str[i]]][,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="fu">matrix</span>(death_cancer[[v_names_str[i]]]), <span class="fu">matrix</span>(death_background[[v_names_str[i]]]))</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(m_M_phd[[v_names_str[i]]])[<span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>] <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Death_Cancer"</span>, <span class="st">"Death_Background"</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  m_M_wBG[[v_names_str[i]]] <span class="ot">=</span> <span class="fu">cbind</span>(m_M_wBG[[v_names_str[i]]][,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="fu">matrix</span>(death_cancer[[v_names_str[i]]]), <span class="fu">matrix</span>(death_background[[v_names_str[i]]]))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(m_M_wBG[[v_names_str[i]]])[<span class="dv">6</span><span class="sc">:</span><span class="dv">7</span>] <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Death_Cancer"</span>, <span class="st">"Death_Background"</span>)</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>m_M_phd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>m_M_wBG</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>$quo
-      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
- [1,]    1000      0      0      0         0          0.0              0.0
- [2,]     916     50     20     10         0          0.0              4.4
- [3,]     839     79     36     17        16          4.5              9.0
- [4,]     768     96     47     22        41         12.1             14.0
- [5,]     703    107     56     26        68         22.0             19.2
- [6,]     643    113     63     28        95         33.5             24.7
- [7,]     588    118     68     30       121         46.1             30.5
- [8,]     537    121     71     31       145         59.4             36.7
- [9,]     490    122     74     31       166         73.1             43.2
-[10,]     448    123     76     31       185         87.0             50.2
-[11,]     408    124     77     31       201        101.0             57.6
-[12,]     372    124     77     31       215        114.9             65.5
-[13,]     339    123     78     30       227        128.6             73.8
-[14,]     308    122     78     30       237        142.2             82.5
-[15,]     280    121     77     29       245        155.5             91.8
-[16,]     255    119     77     29       250        168.6            101.5
-[17,]     231    118     76     28       254        181.3            111.6
-[18,]     209    115     75     27       257        193.8            122.1
-[19,]     189    113     74     27       258        205.9            133.1
-[20,]     171    111     72     26       258        217.6            144.4
-[21,]     155    108     71     25       257        229.0            156.0
-[22,]     140    105     69     24       254        240.1            167.7
-[23,]     126    102     67     23       251        250.7            179.9
-[24,]     113     99     65     23       247        261.0            192.3
-[25,]     102     96     63     22       242        270.9            205.1
-[26,]      91     92     61     21       236        280.4            218.2
-[27,]      82     89     59     20       230        289.5            231.5
-[28,]      73     85     57     19       223        298.2            245.1
-[29,]      65     82     54     18       215        306.6            259.1
-[30,]      58     78     52     17       207        314.5            273.3
-[31,]      51     74     49     16       198        322.0            288.4
+   Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+0     1000      0      0      0         0          0.0              0.0
+1      916     50     20     10         0          0.0              4.4
+2      839     79     36     17        16          4.5              9.0
+3      768     96     47     22        41         12.1             14.0
+4      703    107     56     26        68         22.0             19.2
+5      643    113     63     28        95         33.5             24.7
+6      588    118     68     30       121         46.1             30.5
+7      537    121     71     31       145         59.4             36.7
+8      490    122     74     31       166         73.1             43.2
+9      448    123     76     31       185         87.0             50.2
+10     408    124     77     31       201        101.0             57.6
+11     372    124     77     31       215        114.9             65.5
+12     339    123     78     30       227        128.6             73.8
+13     308    122     78     30       237        142.2             82.5
+14     280    121     77     29       245        155.5             91.8
+15     255    119     77     29       250        168.6            101.5
+16     231    118     76     28       254        181.3            111.6
+17     209    115     75     27       257        193.8            122.1
+18     189    113     74     27       258        205.9            133.1
+19     171    111     72     26       258        217.6            144.4
+20     155    108     71     25       257        229.0            156.0
+21     140    105     69     24       254        240.1            167.7
+22     126    102     67     23       251        250.7            179.9
+23     113     99     65     23       247        261.0            192.3
+24     102     96     63     22       242        270.9            205.1
+25      91     92     61     21       236        280.4            218.2
+26      82     89     59     20       230        289.5            231.5
+27      73     85     57     19       223        298.2            245.1
+28      65     82     54     18       215        306.6            259.1
+29      58     78     52     17       207        314.5            273.3
+30      51     74     49     16       198        322.0            288.4
 
 $trtA
-      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
- [1,]    1000      0      0    0.0         0          0.0              0.0
- [2,]     916     50     20   10.0         0          0.0              4.4
- [3,]     839     79     36   17.0        16          4.5              9.0
- [4,]     768     95     47   22.1        42         12.1             14.0
- [5,]     703    103     54   25.6        74         22.0             19.2
- [6,]     643    105     58   27.8       107         33.5             24.7
- [7,]     588    105     61   28.9       141         45.9             30.5
- [8,]     537    103     61   29.2       174         58.8             36.7
- [9,]     490    100     60   28.9       206         71.9             43.2
-[10,]     448     96     59   28.2       235         84.8             50.2
-[11,]     408     91     57   27.2       261         97.4             57.7
-[12,]     372     87     55   26.0       285        109.5             65.6
-[13,]     339     83     53   24.7       306        121.1             73.9
-[14,]     308     79     50   23.4       324        132.1             82.7
-[15,]     280     75     48   22.1       340        142.5             92.1
-[16,]     255     71     46   20.8       354        152.3            102.0
-[17,]     231     67     44   19.6       365        161.6            112.3
-[18,]     209     64     42   18.4       374        170.2            123.1
-[19,]     189     60     39   17.2       381        178.3            134.4
-[20,]     171     57     38   16.1       385        186.0            146.2
-[21,]     155     54     36   15.1       389        193.1            158.3
-[22,]     140     52     34   14.2       390        199.8            170.7
-[23,]     126     49     32   13.3       390        206.0            183.6
-[24,]     113     47     31   12.5       388        211.9            197.0
-[25,]     102     44     29   11.7       385        217.4            210.8
-[26,]      91     42     28   10.9       381        222.5            225.1
-[27,]      82     40     26   10.3       375        227.3            239.8
-[28,]      73     38     25    9.6       368        231.8            254.9
-[29,]      65     36     24    9.0       360        236.0            270.6
-[30,]      58     34     22    8.4       351        239.9            286.7
-[31,]      51     32     21    7.8       340        243.5            304.1
+   Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+0     1000      0      0    0.0         0          0.0              0.0
+1      916     50     20   10.0         0          0.0              4.4
+2      839     79     36   17.0        16          4.5              9.0
+3      768     95     47   22.1        42         12.1             14.0
+4      703    103     54   25.6        74         22.0             19.2
+5      643    105     58   27.8       107         33.5             24.7
+6      588    105     61   28.9       141         45.9             30.5
+7      537    103     61   29.2       174         58.8             36.7
+8      490    100     60   28.9       206         71.9             43.2
+9      448     96     59   28.2       235         84.8             50.2
+10     408     91     57   27.2       261         97.4             57.7
+11     372     87     55   26.0       285        109.5             65.6
+12     339     83     53   24.7       306        121.1             73.9
+13     308     79     50   23.4       324        132.1             82.7
+14     280     75     48   22.1       340        142.5             92.1
+15     255     71     46   20.8       354        152.3            102.0
+16     231     67     44   19.6       365        161.6            112.3
+17     209     64     42   18.4       374        170.2            123.1
+18     189     60     39   17.2       381        178.3            134.4
+19     171     57     38   16.1       385        186.0            146.2
+20     155     54     36   15.1       389        193.1            158.3
+21     140     52     34   14.2       390        199.8            170.7
+22     126     49     32   13.3       390        206.0            183.6
+23     113     47     31   12.5       388        211.9            197.0
+24     102     44     29   11.7       385        217.4            210.8
+25      91     42     28   10.9       381        222.5            225.1
+26      82     40     26   10.3       375        227.3            239.8
+27      73     38     25    9.6       368        231.8            254.9
+28      65     36     24    9.0       360        236.0            270.6
+29      58     34     22    8.4       351        239.9            286.7
+30      51     32     21    7.8       340        243.5            304.1
 
 $trtB
-      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
- [1,]    1000      0      0      0         0          0.0              0.0
- [2,]     916     50     20     10         0          0.0              4.4
- [3,]     839     79     36     17        16          4.5              9.0
- [4,]     768     96     47     22        41         12.1             14.0
- [5,]     703    106     55     26        70         22.0             19.2
- [6,]     643    112     61     28        99         33.5             24.7
- [7,]     588    115     64     29       127         46.0             30.5
- [8,]     537    117     67     30       154         59.1             36.7
- [9,]     490    117     68     30       178         72.5             43.2
-[10,]     448    118     69     30       200         86.0             50.2
-[11,]     408    117     69     30       219         99.4             57.6
-[12,]     372    116     69     29       236        112.5             65.5
-[13,]     339    115     68     28       250        125.4             73.9
-[14,]     308    114     67     27       262        137.9             82.6
-[15,]     280    113     66     27       272        150.1             91.9
-[16,]     255    111     65     26       280        161.9            101.7
-[17,]     231    109     64     25       286        173.3            111.9
-[18,]     209    107     63     24       290        184.3            122.6
-[19,]     189    105     61     23       293        194.9            133.7
-[20,]     171    102     60     22       294        205.2            145.1
-[21,]     155    100     59     21       294        215.0            156.9
-[22,]     140     97     57     21       292        224.5            168.9
-[23,]     126     94     55     20       290        233.6            181.4
-[24,]     113     91     54     19       286        242.4            194.2
-[25,]     102     89     52     18       281        250.7            207.4
-[26,]      91     86     50     17       276        258.8            220.9
-[27,]      82     83     48     17       270        266.4            234.7
-[28,]      73     79     46     16       263        273.7            248.9
-[29,]      65     76     45     15       255        280.7            263.4
-[30,]      58     73     43     14       246        287.3            278.4
-[31,]      51     69     41     14       237        293.5            294.3
+   Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+0     1000      0      0      0         0          0.0              0.0
+1      916     50     20     10         0          0.0              4.4
+2      839     79     36     17        16          4.5              9.0
+3      768     96     47     22        41         12.1             14.0
+4      703    106     55     26        70         22.0             19.2
+5      643    112     61     28        99         33.5             24.7
+6      588    115     64     29       127         46.0             30.5
+7      537    117     67     30       154         59.1             36.7
+8      490    117     68     30       178         72.5             43.2
+9      448    118     69     30       200         86.0             50.2
+10     408    117     69     30       219         99.4             57.6
+11     372    116     69     29       236        112.5             65.5
+12     339    115     68     28       250        125.4             73.9
+13     308    114     67     27       262        137.9             82.6
+14     280    113     66     27       272        150.1             91.9
+15     255    111     65     26       280        161.9            101.7
+16     231    109     64     25       286        173.3            111.9
+17     209    107     63     24       290        184.3            122.6
+18     189    105     61     23       293        194.9            133.7
+19     171    102     60     22       294        205.2            145.1
+20     155    100     59     21       294        215.0            156.9
+21     140     97     57     21       292        224.5            168.9
+22     126     94     55     20       290        233.6            181.4
+23     113     91     54     19       286        242.4            194.2
+24     102     89     52     18       281        250.7            207.4
+25      91     86     50     17       276        258.8            220.9
+26      82     83     48     17       270        266.4            234.7
+27      73     79     46     16       263        273.7            248.9
+28      65     76     45     15       255        280.7            263.4
+29      58     73     43     14       246        287.3            278.4
+30      51     69     41     14       237        293.5            294.3
 
 $trtC
-      Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
- [1,]    1000      0      0      0         0          0.0              0.0
- [2,]     916     50     20     10         0          0.0              4.4
- [3,]     839     79     36     17        16          4.5              9.0
- [4,]     768     95     47     22        42         12.1             14.0
- [5,]     703    104     55     26        72         22.0             19.2
- [6,]     643    109     60     28       103         33.5             24.7
- [7,]     588    110     63     29       134         46.0             30.5
- [8,]     537    110     64     30       164         59.0             36.7
- [9,]     490    109     64     30       191         72.2             43.2
-[10,]     448    107     64     29       216         85.4             50.2
-[11,]     408    105     63     28       239         98.4             57.7
-[12,]     372    103     62     28       258        111.1             65.6
-[13,]     339    101     61     27       276        123.3             73.9
-[14,]     308     98     60     26       291        135.2             82.7
-[15,]     280     96     58     25       303        146.5             92.0
-[16,]     255     93     57     23       313        157.4            101.8
-[17,]     231     90     55     22       321        167.8            112.1
-[18,]     209     88     53     21       327        177.8            122.8
-[19,]     189     85     52     21       332        187.3            134.0
-[20,]     171     83     50     20       334        196.4            145.6
-[21,]     155     80     49     19       335        205.0            157.6
-[22,]     140     77     47     18       335        213.2            169.7
-[23,]     126     75     45     17       333        221.1            182.4
-[24,]     113     72     44     16       330        228.6            195.4
-[25,]     102     70     42     15       326        235.7            208.9
-[26,]      91     67     41     15       321        242.5            222.8
-[27,]      82     64     39     14       315        248.9            237.0
-[28,]      73     62     37     13       308        255.0            251.6
-[29,]      65     59     36     13       300        260.8            266.7
-[30,]      58     57     34     12       291        266.3            282.1
-[31,]      51     54     32     11       281        271.4            298.7</code></pre>
+   Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
+0     1000      0      0      0         0          0.0              0.0
+1      916     50     20     10         0          0.0              4.4
+2      839     79     36     17        16          4.5              9.0
+3      768     95     47     22        42         12.1             14.0
+4      703    104     55     26        72         22.0             19.2
+5      643    109     60     28       103         33.5             24.7
+6      588    110     63     29       134         46.0             30.5
+7      537    110     64     30       164         59.0             36.7
+8      490    109     64     30       191         72.2             43.2
+9      448    107     64     29       216         85.4             50.2
+10     408    105     63     28       239         98.4             57.7
+11     372    103     62     28       258        111.1             65.6
+12     339    101     61     27       276        123.3             73.9
+13     308     98     60     26       291        135.2             82.7
+14     280     96     58     25       303        146.5             92.0
+15     255     93     57     23       313        157.4            101.8
+16     231     90     55     22       321        167.8            112.1
+17     209     88     53     21       327        177.8            122.8
+18     189     85     52     21       332        187.3            134.0
+19     171     83     50     20       334        196.4            145.6
+20     155     80     49     19       335        205.0            157.6
+21     140     77     47     18       335        213.2            169.7
+22     126     75     45     17       333        221.1            182.4
+23     113     72     44     16       330        228.6            195.4
+24     102     70     42     15       326        235.7            208.9
+25      91     67     41     15       321        242.5            222.8
+26      82     64     39     14       315        248.9            237.0
+27      73     62     37     13       308        255.0            251.6
+28      65     59     36     13       300        260.8            266.7
+29      58     57     34     12       291        266.3            282.1
+30      51     54     32     11       281        271.4            298.7</code></pre>
 </div>
 </div>
 </section>
 <section id="icer-re-calculation" class="level1">
-<h1>ICER re-calculation</h1>
+<h1>ICER Re-Calculation</h1>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m_M_simplified <span class="ot">=</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  m_M_phd <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  m_M_wBG <span class="sc">%&gt;%</span> </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> {</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(.x)){</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      .x[i,<span class="dv">6</span>] <span class="ot">=</span> .x[i,<span class="st">"Death_Cancer"</span>] <span class="sc">+</span> .x[i,<span class="st">"Death_Background"</span>]</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    .x <span class="ot">=</span> .x[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(.x)[<span class="dv">6</span>] <span class="ot">=</span> <span class="st">"Death"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(.x) <span class="ot">=</span> <span class="dv">0</span><span class="sc">:</span>(params_sc<span class="sc">$</span>n_cycles)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    .x</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">calculate_icers</span>(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">cost =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>cost,</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">effect =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>qaly,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> v_names_str)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    .x</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>cea_wBG <span class="ot">=</span> <span class="fu">calculate_icers</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cost =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>cost,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">effect =</span> <span class="fu">get_ce</span>(<span class="at">l_m_M =</span> m_M_simplified, <span class="at">payoffs =</span> <span class="fu">build_payoffs</span>(params_sc), params_sc)<span class="sc">$</span>qaly,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> v_names_str)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">format_table_cea</span>(cea_wBG)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>     Strategy     Cost Effect Inc_Cost Inc_Effect  ICER Status
-quo       quo 25104025  13832       NA         NA    NA     ND
-trtA     trtA 66356870  14348 41252844        516 79971     ND
-trtB     trtB 50429119  14018       NA         NA    NA     ED
-trtC     trtC 73553288  14166       NA         NA    NA      D</code></pre>
+<pre><code>     Strategy  Costs ($) QALYs Incremental Costs ($) Incremental QALYs
+quo       quo 25,104,025 13832                  &lt;NA&gt;                NA
+trtA     trtA 66,356,870 14348            41,252,844               516
+trtB     trtB 50,429,119 14018                  &lt;NA&gt;                NA
+trtC     trtC 73,553,288 14166                  &lt;NA&gt;                NA
+     ICER ($/QALY) Status
+quo           &lt;NA&gt;     ND
+trtA        79,971     ND
+trtB          &lt;NA&gt;     ED
+trtC          &lt;NA&gt;      D</code></pre>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cea_wBG, <span class="at">label =</span> <span class="st">"all"</span>, <span class="at">txtsize =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">max</span>(<span class="fu">format_table_cea</span>(cea_wBG)<span class="sc">$</span>QALYs) <span class="sc">+</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="AddingMortality_files/figure-html/ICER_bg_mortality-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
