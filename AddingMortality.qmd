@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 format: 
   html: 
     toc: true
-    code-fold: show
+    code-fold: true
 ---
 
 Based on the last tutorial of Markov Model in R, we will add background mortality using a cause-deleted life table.
@@ -15,6 +15,7 @@ library(knitr)
 # knit('MarkovDA.qmd', tangle=TRUE)
 # source('MarkovDA.R')
 source(purl("MarkovDA.qmd", output = tempfile()))
+library(stringr)
 options("scipen"=1000, "digits"=2)
 ```
 
@@ -89,6 +90,12 @@ cause_death_m3 = cause_death_m %>% filter(str_detect(age,"-") & str_detect(age, 
          end = as.numeric(str_sub(age,unlist(gregexpr('-', age))[1]+1,unlist(gregexpr(' ', age))[1]-1)),
          reptimes = end - start + 1)
 
+cause_death_m4 = cause_death_m %>% filter(str_detect(age, "[+] ")) %>%
+  rowwise() %>%
+    mutate(end = max(life_table_raw$Age),
+           start = as.numeric(str_sub(age, 1, unlist(gregexpr('[+] ', age))[1]-1)),
+         reptimes = end - start + 1)
+  
 cause_death_male = rbind(
   as.data.frame(lapply(cause_death_m1, rep, cause_death_m1$reptimes)) %>%
     group_by(age) %>%
@@ -99,6 +106,10 @@ cause_death_male = rbind(
     mutate(Age = start - 1 + 1:n()) %>%
     ungroup(),
   as.data.frame(lapply(cause_death_m3, rep, cause_death_m3$reptimes)) %>%
+    group_by(age) %>%
+    mutate(Age = start - 1 + 1:n()) %>%
+    ungroup(),
+  as.data.frame(lapply(cause_death_m4, rep, cause_death_m4$reptimes)) %>%
     group_by(age) %>%
     mutate(Age = start - 1 + 1:n()) %>%
     ungroup()) %>%
@@ -112,18 +123,29 @@ mlt2020 = life_table_raw[(minage_cause+1):(maxage+1),]
 ## dx
 mlt2020_nonCause = rbind(life_table_raw[1:minage_cause, c("Age","dx")],
                          data.frame(Age = minage_cause:maxage, 
-                                    dx = mlt2020[, "dx"] * (1-cause_death_male[, "val"])),
-                         life_table_raw[(maxage+2):nrow(life_table_raw),c("Age","dx")])
+                                    dx = mlt2020[, "dx"] * (1-cause_death_male[, "val"])))
 
 mlt2020_cause = data.frame(Age = minage_cause:maxage,
                          dx = mlt2020[, "dx"] * cause_death_male[, "val"])
 
 # sum(mlt2020_cause$dx) + sum(mlt2020_nonCause$dx)
 
-# back dx to qx
-for (i in 1:nrow(mlt2020_nonCause)){
-  mlt2020_nonCause[i, "qx"] = mlt2020_nonCause[i, "dx"] / sum(mlt2020_nonCause[i:nrow(mlt2020_nonCause), "dx"])
+# directly using the percent and qx
+for (i in 1:nrow(life_table_raw)) {
+  if (i %in% (minage_cause+1):(maxage+1)) {
+    mlt2020_nonCause[i, "qx"] = life_table_raw[i, "qx"] * (1-cause_death_male[i - minage_cause, "val"])
+  } else {
+    mlt2020_nonCause[i, "qx"] = life_table_raw[i, "qx"]
+  }
 }
+
+
+# back dx to qx
+# for (i in 1:nrow(mlt2020_nonCause)){
+#   mlt2020_nonCause[i, "qx"] = mlt2020_nonCause[i, "dx"] / sum(life_table_raw[i:nrow(life_table_raw), "dx"])
+# }
+
+write.csv(mlt2020_nonCause, "exercise/cause-deleted-mlt.csv", row.names = FALSE)
 ```
 
 # Build a Loop to Process Markov Traces with Background Mortality

@@ -8,16 +8,33 @@ project:
     - "*.xls"
 
 website:
-  title: "Lab in R codes"
+  title: "Hanxuan (Astrid) Yu"
   sidebar:
     style: "floating"
     search: false
     collapse-level: 1
     contents:
-      - text: "Basic Markov Model"
-        href: MarkovDA.qmd
-      - text: "Advanced Markov Model"
-        href: AddingMortality.qmd
+      - index.qmd
+      - text: "Curriculum Vitae"
+        href: https://www.dropbox.com/scl/fi/izravfw594wzi7wv3f7zo/Hanxuan-Yu-s-CV.docx?rlkey=qhl43x2xkfhqi3vvvnfy9egzl&dl=0
+      - section: "Projects"
+        contents:
+        - bridge_brief.qmd
+        - text: "CRNs in DES"
+          href: CVD_DES_CRN_abstract.qmd
+      - section: "Labs"
+        contents:
+         - MarkovDA.qmd
+         - AddingMortality.qmd
+      - section: "Links to other webs"
+        contents:
+        - text: "SMDM Europe Short Course (2023)"
+          href: https://smdm-europe23-what-they-didnt-teach.netlify.app/
+        - text: "Health Economics Modeling Workshop (2022)"
+          href: https://vchem-vital-workshop-2022.netlify.app/
+        - text: "PUBH 5512 (2023)"
+          href: https://decision-analysis-2023.netlify.app/
+
 
 execute:
   freeze: auto  # re-render only when source changes

@@ -1,1 +1,1 @@
-Sitemap: https://quartopub.com/sites/yuhanxuan/lab-in-r-codes/sitemap.xml
+Sitemap: https://quartopub.com/sites/yuhanxuan/decisionscience/sitemap.xml

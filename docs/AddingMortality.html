@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Astrid Yu, Ashley Leech">
-<meta name="dcterms.date" content="2023-03-22">
+<meta name="dcterms.date" content="2023-07-12">
 
-<title>Lab in R codes - Add the Time-Varying Variable into Markov Model</title>
+<title>Hanxuan (Astrid) Yu - Add the Time-Varying Variable into Markov Model</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -142,21 +142,86 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Lab in R codes</a> 
+      <a href="./">Hanxuan (Astrid) Yu</a> 
     </div>
       </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./MarkovDA.html" class="sidebar-item-text sidebar-link">Basic Markov Model</a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link">About Me</a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./AddingMortality.html" class="sidebar-item-text sidebar-link active">Advanced Markov Model</a>
+  <a href="https://www.dropbox.com/scl/fi/izravfw594wzi7wv3f7zo/Hanxuan-Yu-s-CV.docx?rlkey=qhl43x2xkfhqi3vvvnfy9egzl&amp;dl=0" class="sidebar-item-text sidebar-link">Curriculum Vitae</a>
   </div>
 </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">Projects</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bridge_brief.html" class="sidebar-item-text sidebar-link">BRIDGE Report</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./CVD_DES_CRN_abstract.html" class="sidebar-item-text sidebar-link">CRNs in DES</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Labs</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./MarkovDA.html" class="sidebar-item-text sidebar-link">How to Create Markov Model using R</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./AddingMortality.html" class="sidebar-item-text sidebar-link active">Add the Time-Varying Variable into Markov Model</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">Links to other webs</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="https://smdm-europe23-what-they-didnt-teach.netlify.app/" class="sidebar-item-text sidebar-link">SMDM Europe Short Course (2023)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="https://vchem-vital-workshop-2022.netlify.app/" class="sidebar-item-text sidebar-link">Health Economics Modeling Workshop (2022)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="https://decision-analysis-2023.netlify.app/" class="sidebar-item-text sidebar-link">PUBH 5512 (2023)</a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -199,7 +264,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 22, 2023</p>
+      <p class="date">July 12, 2023</p>
     </div>
   </div>
     
@@ -210,13 +275,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <p>Based on the last tutorial of Markov Model in R, we will add background mortality using a cause-deleted life table.</p>
 <div class="cell">
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># knit('MarkovDA.qmd', tangle=TRUE)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># source('MarkovDA.R')</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">purl</span>(<span class="st">"MarkovDA.qmd"</span>, <span class="at">output =</span> <span class="fu">tempfile</span>()))</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"scipen"</span><span class="ot">=</span><span class="dv">1000</span>, <span class="st">"digits"</span><span class="ot">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="st">"scipen"</span><span class="ot">=</span><span class="dv">1000</span>, <span class="st">"digits"</span><span class="ot">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="dive-into-life-table" class="level1">
@@ -262,7 +328,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tbody>
 </table>
 <div class="cell">
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>input_file <span class="ot">=</span> <span class="fu">normalizePath</span>(<span class="fu">here</span>(<span class="st">"exercise/markov_exercise_phd.xlsx"</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>life_table_raw <span class="ot">=</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(input_file,<span class="at">sheet=</span><span class="st">"Life Table - Male"</span>,<span class="at">col_types =</span><span class="st">"numeric"</span>)[<span class="sc">-</span><span class="dv">1</span>,]</span>
@@ -284,7 +350,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The GBD result of death caused by prostate cancer is divided by age groups, which we need to expand to match the original life table.</p>
 <p>non-Cause death = all the death * (1 - percent_of_caused_death)</p>
 <div class="cell">
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cause_death_m <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">"exercise/GBD_2019_prostate.csv"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(age,val,upper,lower)</span>
@@ -309,41 +375,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>         <span class="at">end =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'-'</span>, age))[<span class="dv">1</span>]<span class="sc">+</span><span class="dv">1</span>,<span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">' '</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>         <span class="at">reptimes =</span> end <span class="sc">-</span> start <span class="sc">+</span> <span class="dv">1</span>)</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>cause_death_male <span class="ot">=</span> <span class="fu">rbind</span>(</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m1, rep, cause_death_m1<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m2, rep, cause_death_m2<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m3, rep, cause_death_m3<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Age) <span class="sc">%&gt;%</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Age, val, upper, lower)</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>maxage <span class="ot">=</span> <span class="fu">min</span>(<span class="fu">max</span>(life_table_raw<span class="sc">$</span>Age), <span class="fu">max</span>(cause_death_male<span class="sc">$</span>Age))</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>minage_cause <span class="ot">=</span> <span class="fu">min</span>(cause_death_male<span class="sc">$</span>Age)</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>mlt2020 <span class="ot">=</span> life_table_raw[(minage_cause<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(maxage<span class="sc">+</span><span class="dv">1</span>),]</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="do">## dx</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>mlt2020_nonCause <span class="ot">=</span> <span class="fu">rbind</span>(life_table_raw[<span class="dv">1</span><span class="sc">:</span>minage_cause, <span class="fu">c</span>(<span class="st">"Age"</span>,<span class="st">"dx"</span>)],</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage, </span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>cause_death_male[, <span class="st">"val"</span>])),</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                         life_table_raw[(maxage<span class="sc">+</span><span class="dv">2</span>)<span class="sc">:</span><span class="fu">nrow</span>(life_table_raw),<span class="fu">c</span>(<span class="st">"Age"</span>,<span class="st">"dx"</span>)])</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>cause_death_m4 <span class="ot">=</span> cause_death_m <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">str_detect</span>(age, <span class="st">"[+] "</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">end =</span> <span class="fu">max</span>(life_table_raw<span class="sc">$</span>Age),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">start =</span> <span class="fu">as.numeric</span>(<span class="fu">str_sub</span>(age, <span class="dv">1</span>, <span class="fu">unlist</span>(<span class="fu">gregexpr</span>(<span class="st">'[+] '</span>, age))[<span class="dv">1</span>]<span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">reptimes =</span> end <span class="sc">-</span> start <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>cause_death_male <span class="ot">=</span> <span class="fu">rbind</span>(</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m1, rep, cause_death_m1<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m2, rep, cause_death_m2<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m3, rep, cause_death_m3<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>(),</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(cause_death_m4, rep, cause_death_m4<span class="sc">$</span>reptimes)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Age =</span> start <span class="sc">-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Age) <span class="sc">%&gt;%</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Age, val, upper, lower)</span>
 <span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>mlt2020_cause <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage,</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                         <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> cause_death_male[, <span class="st">"val"</span>])</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co"># sum(mlt2020_cause$dx) + sum(mlt2020_nonCause$dx)</span></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co"># back dx to qx</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mlt2020_nonCause)){</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  mlt2020_nonCause[i, <span class="st">"qx"</span>] <span class="ot">=</span> mlt2020_nonCause[i, <span class="st">"dx"</span>] <span class="sc">/</span> <span class="fu">sum</span>(mlt2020_nonCause[i<span class="sc">:</span><span class="fu">nrow</span>(mlt2020_nonCause), <span class="st">"dx"</span>])</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>maxage <span class="ot">=</span> <span class="fu">min</span>(<span class="fu">max</span>(life_table_raw<span class="sc">$</span>Age), <span class="fu">max</span>(cause_death_male<span class="sc">$</span>Age))</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>minage_cause <span class="ot">=</span> <span class="fu">min</span>(cause_death_male<span class="sc">$</span>Age)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>mlt2020 <span class="ot">=</span> life_table_raw[(minage_cause<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(maxage<span class="sc">+</span><span class="dv">1</span>),]</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="do">## dx</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>mlt2020_nonCause <span class="ot">=</span> <span class="fu">rbind</span>(life_table_raw[<span class="dv">1</span><span class="sc">:</span>minage_cause, <span class="fu">c</span>(<span class="st">"Age"</span>,<span class="st">"dx"</span>)],</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage, </span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>cause_death_male[, <span class="st">"val"</span>])))</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>mlt2020_cause <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">Age =</span> minage_cause<span class="sc">:</span>maxage,</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>                         <span class="at">dx =</span> mlt2020[, <span class="st">"dx"</span>] <span class="sc">*</span> cause_death_male[, <span class="st">"val"</span>])</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co"># sum(mlt2020_cause$dx) + sum(mlt2020_nonCause$dx)</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="co"># directly using the percent and qx</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(life_table_raw)) {</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (i <span class="sc">%in%</span> (minage_cause<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(maxage<span class="sc">+</span><span class="dv">1</span>)) {</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    mlt2020_nonCause[i, <span class="st">"qx"</span>] <span class="ot">=</span> life_table_raw[i, <span class="st">"qx"</span>] <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>cause_death_male[i <span class="sc">-</span> minage_cause, <span class="st">"val"</span>])</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    mlt2020_nonCause[i, <span class="st">"qx"</span>] <span class="ot">=</span> life_table_raw[i, <span class="st">"qx"</span>]</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="co"># back dx to qx</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="co"># for (i in 1:nrow(mlt2020_nonCause)){</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a><span class="co">#   mlt2020_nonCause[i, "qx"] = mlt2020_nonCause[i, "dx"] / sum(life_table_raw[i:nrow(life_table_raw), "dx"])</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mlt2020_nonCause, <span class="st">"exercise/cause-deleted-mlt.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -353,7 +440,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Before we have build the Markov traces without considering background mortality.</p>
 <p>Here we will build new Markov traces with one more column – number of death caused by pure background mortality.</p>
 <div class="cell">
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># here use the cause-deleted life table</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_M_wBG <span class="ot">=</span> death_background <span class="ot">=</span> death_cancer <span class="ot">=</span> <span class="fu">list</span>()</span>
@@ -387,145 +474,145 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>$quo
    Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
 0     1000      0      0      0         0          0.0              0.0
-1      916     50     20     10         0          0.0              4.4
-2      839     79     36     17        16          4.5              9.0
-3      768     96     47     22        41         12.1             14.0
-4      703    107     56     26        68         22.0             19.2
-5      643    113     63     28        95         33.5             24.7
-6      588    118     68     30       121         46.1             30.5
-7      537    121     71     31       145         59.4             36.7
-8      490    122     74     31       166         73.1             43.2
-9      448    123     76     31       185         87.0             50.2
-10     408    124     77     31       201        101.0             57.6
-11     372    124     77     31       215        114.9             65.5
-12     339    123     78     30       227        128.6             73.8
-13     308    122     78     30       237        142.2             82.5
-14     280    121     77     29       245        155.5             91.8
-15     255    119     77     29       250        168.6            101.5
-16     231    118     76     28       254        181.3            111.6
-17     209    115     75     27       257        193.8            122.1
-18     189    113     74     27       258        205.9            133.1
-19     171    111     72     26       258        217.6            144.4
-20     155    108     71     25       257        229.0            156.0
-21     140    105     69     24       254        240.1            167.7
-22     126    102     67     23       251        250.7            179.9
-23     113     99     65     23       247        261.0            192.3
-24     102     96     63     22       242        270.9            205.1
-25      91     92     61     21       236        280.4            218.2
-26      82     89     59     20       230        289.5            231.5
-27      73     85     57     19       223        298.2            245.1
-28      65     82     54     18       215        306.6            259.1
-29      58     78     52     17       207        314.5            273.3
-30      51     74     49     16       198        322.0            288.4
+1      916     50     20     10         0          0.0              4.2
+2      839     79     36     17        16          4.5              8.7
+3      768     96     47     22        41         12.1             13.5
+4      703    107     56     26        68         22.0             18.5
+5      643    113     63     28        95         33.5             23.8
+6      588    118     68     30       121         46.1             29.4
+7      538    121     71     31       145         59.5             35.4
+8      491    123     74     31       166         73.2             41.7
+9      449    124     76     31       185         87.1             48.4
+10     409    124     77     31       202        101.1             55.6
+11     373    124     78     31       216        115.0             63.2
+12     340    124     78     31       228        128.8             71.2
+13     309    123     78     30       238        142.4             79.6
+14     281    121     78     30       245        155.8             88.5
+15     256    120     77     29       251        168.9             97.9
+16     232    118     76     28       256        181.8            107.6
+17     210    116     75     27       258        194.3            117.8
+18     191    114     74     27       260        206.4            128.4
+19     173    111     73     26       260        218.3            139.3
+20     156    109     71     25       259        229.8            150.5
+21     141    106     70     24       256        240.9            161.9
+22     127    103     68     24       253        251.7            173.6
+23     114    100     66     23       249        262.0            185.7
+24     103     97     64     22       244        272.1            198.1
+25      92     93     62     21       239        281.7            210.8
+26      83     90     60     20       233        290.9            223.7
+27      74     86     58     19       226        299.8            236.9
+28      66     83     55     18       219        308.2            250.5
+29      59     79     53     18       211        316.3            264.3
+30      52     75     50     17       202        323.9            279.1
 
 $trtA
    Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
 0     1000      0      0    0.0         0          0.0              0.0
-1      916     50     20   10.0         0          0.0              4.4
-2      839     79     36   17.0        16          4.5              9.0
-3      768     95     47   22.1        42         12.1             14.0
-4      703    103     54   25.6        74         22.0             19.2
-5      643    105     58   27.8       107         33.5             24.7
-6      588    105     61   28.9       141         45.9             30.5
-7      537    103     61   29.2       174         58.8             36.7
-8      490    100     60   28.9       206         71.9             43.2
-9      448     96     59   28.2       235         84.8             50.2
-10     408     91     57   27.2       261         97.4             57.7
-11     372     87     55   26.0       285        109.5             65.6
-12     339     83     53   24.7       306        121.1             73.9
-13     308     79     50   23.4       324        132.1             82.7
-14     280     75     48   22.1       340        142.5             92.1
-15     255     71     46   20.8       354        152.3            102.0
-16     231     67     44   19.6       365        161.6            112.3
-17     209     64     42   18.4       374        170.2            123.1
-18     189     60     39   17.2       381        178.3            134.4
-19     171     57     38   16.1       385        186.0            146.2
-20     155     54     36   15.1       389        193.1            158.3
-21     140     52     34   14.2       390        199.8            170.7
-22     126     49     32   13.3       390        206.0            183.6
-23     113     47     31   12.5       388        211.9            197.0
-24     102     44     29   11.7       385        217.4            210.8
-25      91     42     28   10.9       381        222.5            225.1
-26      82     40     26   10.3       375        227.3            239.8
-27      73     38     25    9.6       368        231.8            254.9
-28      65     36     24    9.0       360        236.0            270.6
-29      58     34     22    8.4       351        239.9            286.7
-30      51     32     21    7.8       340        243.5            304.1
+1      916     50     20   10.0         0          0.0              4.2
+2      839     79     36   17.1        16          4.5              8.7
+3      768     95     47   22.1        42         12.1             13.5
+4      703    103     54   25.6        74         22.0             18.5
+5      643    106     59   27.8       108         33.5             23.8
+6      588    105     61   29.0       142         45.9             29.4
+7      538    103     61   29.3       175         58.9             35.4
+8      491    100     61   29.0       206         72.0             41.7
+9      449     96     59   28.3       235         84.9             48.4
+10     409     92     57   27.3       262         97.5             55.6
+11     373     87     55   26.1       285        109.7             63.2
+12     340     83     53   24.8       307        121.3             71.3
+13     309     79     51   23.5       325        132.3             79.8
+14     281     75     48   22.2       342        142.8             88.8
+15     256     71     46   20.9       355        152.7             98.3
+16     232     68     44   19.6       367        161.9            108.3
+17     210     64     42   18.5       376        170.6            118.8
+18     191     61     40   17.3       383        178.8            129.7
+19     173     58     38   16.3       388        186.5            141.1
+20     156     55     36   15.3       392        193.7            152.8
+21     141     52     34   14.3       393        200.4            164.8
+22     127     49     33   13.4       394        206.7            177.3
+23     114     47     31   12.6       392        212.6            190.2
+24     103     45     29   11.8       389        218.2            203.6
+25      92     42     28   11.1       385        223.4            217.5
+26      83     40     27   10.4       380        228.2            231.7
+27      74     38     25    9.7       374        232.8            246.4
+28      66     36     24    9.1       366        237.0            261.6
+29      59     34     23    8.5       357        241.0            277.3
+30      52     32     21    8.0       347        244.7            294.3
 
 $trtB
    Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
 0     1000      0      0      0         0          0.0              0.0
-1      916     50     20     10         0          0.0              4.4
-2      839     79     36     17        16          4.5              9.0
-3      768     96     47     22        41         12.1             14.0
-4      703    106     55     26        70         22.0             19.2
-5      643    112     61     28        99         33.5             24.7
-6      588    115     64     29       127         46.0             30.5
-7      537    117     67     30       154         59.1             36.7
-8      490    117     68     30       178         72.5             43.2
-9      448    118     69     30       200         86.0             50.2
-10     408    117     69     30       219         99.4             57.6
-11     372    116     69     29       236        112.5             65.5
-12     339    115     68     28       250        125.4             73.9
-13     308    114     67     27       262        137.9             82.6
-14     280    113     66     27       272        150.1             91.9
-15     255    111     65     26       280        161.9            101.7
-16     231    109     64     25       286        173.3            111.9
-17     209    107     63     24       290        184.3            122.6
-18     189    105     61     23       293        194.9            133.7
-19     171    102     60     22       294        205.2            145.1
-20     155    100     59     21       294        215.0            156.9
-21     140     97     57     21       292        224.5            168.9
-22     126     94     55     20       290        233.6            181.4
-23     113     91     54     19       286        242.4            194.2
-24     102     89     52     18       281        250.7            207.4
-25      91     86     50     17       276        258.8            220.9
-26      82     83     48     17       270        266.4            234.7
-27      73     79     46     16       263        273.7            248.9
-28      65     76     45     15       255        280.7            263.4
-29      58     73     43     14       246        287.3            278.4
-30      51     69     41     14       237        293.5            294.3
+1      916     50     20     10         0          0.0              4.2
+2      839     79     36     17        16          4.5              8.7
+3      768     96     47     22        41         12.1             13.5
+4      703    106     55     26        70         22.0             18.5
+5      643    112     61     28        99         33.5             23.8
+6      588    115     65     29       127         46.0             29.4
+7      538    117     67     30       154         59.2             35.4
+8      491    118     68     30       178         72.6             41.7
+9      449    118     69     30       200         86.1             48.4
+10     409    117     69     30       220         99.5             55.6
+11     373    117     69     29       236        112.7             63.2
+12     340    116     68     28       251        125.6             71.2
+13     309    115     68     27       263        138.2             79.7
+14     281    113     67     27       273        150.4             88.6
+15     256    111     66     26       281        162.2             98.1
+16     232    109     64     25       287        173.7            107.9
+17     210    107     63     24       292        184.8            118.2
+18     191    105     62     23       295        195.5            129.0
+19     173    103     60     22       296        205.8            140.0
+20     156    100     59     22       296        215.7            151.4
+21     141     98     57     21       295        225.3            163.1
+22     127     95     56     20       292        234.5            175.1
+23     114     92     54     19       289        243.3            187.5
+24     103     90     52     18       285        251.8            200.3
+25      92     87     51     18       279        259.9            213.4
+26      83     84     49     17       273        267.6            226.8
+27      74     81     47     16       266        275.0            240.5
+28      66     77     45     15       259        282.1            254.7
+29      59     74     43     15       251        288.8            269.2
+30      52     71     41     14       242        295.2            284.8
 
 $trtC
    Healthy Stage1 Stage2 Stage3 Remission Death_Cancer Death_Background
 0     1000      0      0      0         0          0.0              0.0
-1      916     50     20     10         0          0.0              4.4
-2      839     79     36     17        16          4.5              9.0
-3      768     95     47     22        42         12.1             14.0
-4      703    104     55     26        72         22.0             19.2
-5      643    109     60     28       103         33.5             24.7
-6      588    110     63     29       134         46.0             30.5
-7      537    110     64     30       164         59.0             36.7
-8      490    109     64     30       191         72.2             43.2
-9      448    107     64     29       216         85.4             50.2
-10     408    105     63     28       239         98.4             57.7
-11     372    103     62     28       258        111.1             65.6
-12     339    101     61     27       276        123.3             73.9
-13     308     98     60     26       291        135.2             82.7
-14     280     96     58     25       303        146.5             92.0
-15     255     93     57     23       313        157.4            101.8
-16     231     90     55     22       321        167.8            112.1
-17     209     88     53     21       327        177.8            122.8
-18     189     85     52     21       332        187.3            134.0
-19     171     83     50     20       334        196.4            145.6
-20     155     80     49     19       335        205.0            157.6
-21     140     77     47     18       335        213.2            169.7
-22     126     75     45     17       333        221.1            182.4
-23     113     72     44     16       330        228.6            195.4
-24     102     70     42     15       326        235.7            208.9
-25      91     67     41     15       321        242.5            222.8
-26      82     64     39     14       315        248.9            237.0
-27      73     62     37     13       308        255.0            251.6
-28      65     59     36     13       300        260.8            266.7
-29      58     57     34     12       291        266.3            282.1
-30      51     54     32     11       281        271.4            298.7</code></pre>
+1      916     50     20     10         0          0.0              4.2
+2      839     79     36     17        16          4.5              8.7
+3      768     95     47     22        42         12.1             13.5
+4      703    104     55     26        72         22.0             18.5
+5      643    109     60     28       103         33.5             23.8
+6      588    110     63     29       134         46.0             29.4
+7      538    110     64     30       164         59.0             35.4
+8      491    109     65     30       191         72.3             41.7
+9      449    107     64     29       217         85.5             48.4
+10     409    105     64     28       239         98.5             55.6
+11     373    103     62     28       259        111.2             63.2
+12     340    101     61     27       277        123.5             71.3
+13     309     98     60     26       292        135.4             79.8
+14     281     96     58     25       304        146.8             88.7
+15     256     93     57     24       315        157.8             98.2
+16     232     91     55     23       323        168.2            108.1
+17     210     88     54     22       329        178.2            118.5
+18     191     86     52     21       334        187.8            129.3
+19     173     83     51     20       337        196.9            140.5
+20     156     81     49     19       338        205.6            152.1
+21     141     78     47     18       338        213.9            163.9
+22     127     76     46     17       337        221.9            176.1
+23     114     73     44     16       334        229.4            188.7
+24     103     70     43     16       330        236.6            201.8
+25      92     68     41     15       325        243.5            215.3
+26      83     65     39     14       319        250.0            229.0
+27      74     63     38     13       312        256.2            243.2
+28      66     60     36     13       305        262.1            257.8
+29      59     58     35     12       296        267.6            272.9
+30      52     55     33     11       286        272.9            289.0</code></pre>
 </div>
 </div>
 </section>
 <section id="icer-re-calculation" class="level1">
 <h1>ICER Re-Calculation</h1>
 <div class="cell">
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m_M_simplified <span class="ot">=</span> </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  m_M_wBG <span class="sc">%&gt;%</span> </span>
@@ -548,17 +635,17 @@ $trtC
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Strategy  Costs ($) QALYs Incremental Costs ($) Incremental QALYs
-quo       quo 25,104,025 13832                  &lt;NA&gt;                NA
-trtA     trtA 66,356,870 14348            41,252,844               516
-trtB     trtB 50,429,119 14018                  &lt;NA&gt;                NA
-trtC     trtC 73,553,288 14166                  &lt;NA&gt;                NA
+quo       quo 25,224,653 13883                  &lt;NA&gt;                NA
+trtA     trtA 66,750,941 14403            41,526,288               521
+trtB     trtB 50,710,441 14070                  &lt;NA&gt;                NA
+trtC     trtC 73,988,389 14220                  &lt;NA&gt;                NA
      ICER ($/QALY) Status
 quo           &lt;NA&gt;     ND
-trtA        79,971     ND
+trtA        79,771     ND
 trtB          &lt;NA&gt;     ED
 trtC          &lt;NA&gt;      D</code></pre>
 </div>
-<details open="">
+<details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cea_wBG, <span class="at">label =</span> <span class="st">"all"</span>, <span class="at">txtsize =</span> <span class="dv">16</span>) <span class="sc">+</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">max</span>(<span class="fu">format_table_cea</span>(cea_wBG)<span class="sc">$</span>QALYs) <span class="sc">+</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>

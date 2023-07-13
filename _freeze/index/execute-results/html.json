@@ -1,0 +1,14 @@
+{
+  "hash": "5fae4536f023f0067a98bf8bec4b21cf",
+  "result": {
+    "markdown": "---\ntitle: \"About Me\"\ndate: \"2023-07-12\"\nformat: \n  html: \n    toc: true\n    code-fold: show\n---\n\n\nTo construct...\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

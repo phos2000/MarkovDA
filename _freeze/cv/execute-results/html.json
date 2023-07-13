@@ -1,0 +1,14 @@
+{
+  "hash": "603b8c4452f717dadd1ccc5e008bb240",
+  "result": {
+    "markdown": "---\ntitle: \"Curriculum Vitae\"\ndate: \"2023-07-12\"\nformat: \n  html: \n    toc: true\n    code-fold: show\n---\n\n\nTo construct...\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

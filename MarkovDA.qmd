@@ -5,7 +5,7 @@ date: "2023-03-01"
 format: 
   html: 
     toc: true
-    code-fold: show
+    code-fold: true
 ---
 
 ```{r setup, include=FALSE}
@@ -44,7 +44,7 @@ We are tasked to examine the economic value of new treatments for a rare type of
 Before the new drugs development, the transition probabilities were the following:
 
 | Description                                                             | Probability |
-|-------------------------------------------------------------------------|-------------|
+|---------------------------------------------------------|---------------|
 | Probability of transition from Healthy to Stage 1                       | 5%          |
 | Probability of transition from Healthy to Stage 2                       | 2%          |
 | Probability of transition from Healthy to Stage 3                       | 1%          |
