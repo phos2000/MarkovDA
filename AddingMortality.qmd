@@ -154,6 +154,8 @@ Before we have build the Markov traces without considering background mortality.
 
 Here we will build new Markov traces with one more column -- number of death caused by pure background mortality.
 
+## Not Using expm
+
 ```{r loop}
 # here use the cause-deleted life table
 m_M_wBG = death_background = death_cancer = list()
@@ -183,6 +185,46 @@ for (i in 1:n_strategies) {
   
 m_M_wBG
 ```
+## Using expm
+
+```{r expm_bg}
+start_age = 45
+r_death_background = sapply(subset(mlt2020_nonCause, Age >= start_age)$qx, function(p) {-log(1-p)})
+
+m_Pt <- function(t)
+{
+  r_death_bg = r_death_background[t]
+  m_Rt = lapply(m_R, function(m) {
+    m = cbind(m, c(rep(r_death_bg,5),0))
+    m = rbind(m, rep(0,7))
+    dimnames(m)[[1]] = c(dimnames(m)[[1]][1:5],"Death_Cancer", "Death_Background")
+    dimnames(m)[[2]] = c(dimnames(m)[[2]][1:5], "Death_Cancer", "Death_Background")
+    diag(m) <- 0
+    diag(m) <- -rowSums(m)
+    m})
+  m_P <- # Embed the matrices into the timesteps
+        lapply(m_Rt, function(m) expm::expm(m))
+}
+
+params_sc$m_P <- lapply(1:params_sc$n_cycles, function(t) m_Pt(t))
+
+
+m_M_wBG_expm <- lapply(v_names_str, function(str){
+  tr_ <- t(c("Healthy" = params_sc$nPop, "Stage1" = 0, "Stage2" = 0, "Stage3" = 0, "Remission" = 0, "Death_Cancer" = 0, "Death_Background" = 0))
+  tr <- do.call(rbind, lapply(params_sc$m_P, function(tp) {
+            tr_ <<- tr_ %*% tp[[str]]
+        }))
+  tr <- rbind(t(c(params_sc$nPop, rep(0,6))), tr)
+  dimnames(tr)[[1]] = 0:params_sc$n_cycles
+  tr = round(tr, 2)
+  return(tr)
+  })
+
+names(m_M_wBG_expm) = v_names_str
+
+m_M_wBG_expm
+```
+
 
 # ICER Re-Calculation
 
