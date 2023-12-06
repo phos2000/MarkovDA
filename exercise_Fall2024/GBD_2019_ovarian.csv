@@ -1,0 +1,20 @@
+measure,location,sex,age,cause,metric,year,val,upper,lower
+Deaths,United States of America,Female,5-9 years,Ovarian cancer,Percent,2019,0.002877695,0.003843706,0.002372837
+Deaths,United States of America,Female,10-14 years,Ovarian cancer,Percent,2019,0.00516228,0.00711363,0.004272952
+Deaths,United States of America,Female,15-19 years,Ovarian cancer,Percent,2019,0.003255409,0.004222046,0.002857614
+Deaths,United States of America,Female,20-24 years,Ovarian cancer,Percent,2019,0.00409488,0.00483503,0.003613599
+Deaths,United States of America,Female,25-29 years,Ovarian cancer,Percent,2019,0.005052616,0.006036246,0.004420363
+Deaths,United States of America,Female,30-34 years,Ovarian cancer,Percent,2019,0.007136256,0.008552202,0.006299255
+Deaths,United States of America,Female,35-39 years,Ovarian cancer,Percent,2019,0.010779661648518804,0.012117593061947101,0.009769458
+Deaths,United States of America,Female,40-44 years,Ovarian cancer,Percent,2019,0.015049414651148493,0.017142374,0.013581763299101862
+Deaths,United States of America,Female,45-49 years,Ovarian cancer,Percent,2019,0.021167852,0.023989205135657648,0.019322718
+Deaths,United States of America,Female,50-54 years,Ovarian cancer,Percent,2019,0.024824163,0.028719799666183345,0.022845059
+Deaths,United States of America,Female,55-59 years,Ovarian cancer,Percent,2019,0.026523179549566858,0.030291973,0.024595931
+Deaths,United States of America,Female,60-64 years,Ovarian cancer,Percent,2019,0.026848691258033568,0.029941915,0.024840825
+Deaths,United States of America,Female,65-69 years,Ovarian cancer,Percent,2019,0.025434776,0.028221859289830807,0.023512174129363347
+Deaths,United States of America,Female,70-74 years,Ovarian cancer,Percent,2019,0.021437115573975228,0.023647848342766627,0.019731603285388467
+Deaths,United States of America,Female,75-79 years,Ovarian cancer,Percent,2019,0.016837015926953552,0.018511180691894245,0.015005358442386473
+Deaths,United States of America,Female,80-84,Ovarian cancer,Percent,2019,0.012044885285827969,0.013549461480817782,0.010138712951623927
+Deaths,United States of America,Female,85-89,Ovarian cancer,Percent,2019,0.007961108,0.00912102,0.006326894
+Deaths,United States of America,Female,90-94,Ovarian cancer,Percent,2019,0.00454783,0.005327732,0.003314403
+Deaths,United States of America,Female,95+ years,Ovarian cancer,Percent,2019,0.00235647,0.002816578,0.001689573
