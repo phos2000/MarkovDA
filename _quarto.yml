@@ -9,6 +9,30 @@ project:
 
 website:
   title: "Hanxuan (Astrid) Yu"
+  navbar:
+    right:
+      - text: "CV"
+        href: https://www.dropbox.com/scl/fi/izravfw594wzi7wv3f7zo/Hanxuan-Yu-s-CV.docx?rlkey=qhl43x2xkfhqi3vvvnfy9egzl&dl=0
+      - text: "Intro"
+        href: https://docs.google.com/presentation/d/14GNKasC5HI-crZDAPIGCzjMvDzJSXbWdRWEyJ6yUfak/edit?usp=sharing
+      - text: "Projects"
+        menu:
+         - bridge_brief.qmd
+         - text: "CRNs in DES"
+           href: CVD_DES_CRN_abstract.qmd
+      - text: "Links"
+        menu:
+        - text: "SMDM Europe Short Course (2023)"
+          href: https://smdm-europe23-what-they-didnt-teach.netlify.app/
+        - text: "Health Economics Modeling Workshop (2022)"
+          href: https://vchem-vital-workshop-2022.netlify.app/
+        - text: "PUBH 5512 (2023)"
+          href: https://decision-analysis-2023.netlify.app/
+      - icon: twitter
+        href: https://twitter.com/hanxuan_yu
+      - icon: github
+        href: https://github.com/phos2000
+
   sidebar:
     style: "floating"
     search: false
@@ -25,7 +49,7 @@ website:
       - section: "Labs"
         contents:
          - MarkovDA.qmd
-         - AddingMortality.qmd
+         - phd_lab_fall2024.qmd
       - section: "Links to other webs"
         contents:
         - text: "SMDM Europe Short Course (2023)"
@@ -41,7 +65,7 @@ execute:
 
 format:
   html:
-    theme: flatly
+    theme: [flatly, light.scss]
     css: styles.css
     toc: true
 
